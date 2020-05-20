@@ -7,40 +7,40 @@ from pathlib import Path
 @given("I have run {command}")
 @when("I run {command}")
 def run(ctx, command):
-    try:
-        output = subprocess.check_output(
+        result = subprocess.run(
             shlex.split(command),
             cwd=ctx.working_directory,
-            stderr=subprocess.STDOUT,
-            encoding="utf-8",
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            encoding="utf-8"
         )
-        ctx.exit_code = 0
-    except subprocess.CalledProcessError as err:
-        output = err.output
-        ctx.exit_code = err.returncode
 
-    ctx.output = output
+        ctx.exit_code = result.returncode
 
+        ctx.output = {
+            "stdout": result.stdout,
+            "stderr": result.stderr
+        }
 
 @then("its exit code should be {expected:d}")
 def assert_exit_code(ctx, expected):
     assert (
         ctx.exit_code == expected
-    ), f"Expected exit code {expected}, got {ctx.exit_code}. Output: {ctx.output}"
+    ), f"Expected exit code {ctx.exit_code}, got {actual}."
 
 
-@then("its output should match {regex}")
-def assert_output_matches(ctx, regex):
+@then("its {stream} should match {regex}")
+def assert_output_matches(ctx, stream, regex):
     assert re.match(
-        regex, ctx.output
-    ), f"Expected output to match '{regex}', got '{ctx.output}'"
+        regex, ctx.output[stream]
+    ), f"Expected {stream} to match '{regex}', got '{ctx.output[stream]}'"
 
 
-@then("its output should be")
-def assert_output_is(ctx):
+@then("its {stream} should be")
+def assert_output_is(ctx, stream):
     assert (
-        ctx.output == ctx.text
-    ), f"Expected output to be '{ctx.text}', got '{ctx.output}'"
+        ctx.output[stream] == ctx.text
+    ), f"Expected {stream} to be '{ctx.text}', got '{ctx.output[stream]}'"
 
 
 @then("the file {file_name} should exist")

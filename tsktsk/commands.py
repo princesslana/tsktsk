@@ -1,7 +1,8 @@
+from pkg_resources import get_distribution
 from pathlib import Path
 
 import click
-from pkg_resources import get_distribution
+import sys
 
 __version__ = get_distribution("tsktsk").version
 
@@ -16,6 +17,6 @@ def cli():
 def init():
     try:
         Path(".tsktsk").touch(exist_ok=False)
-        print("Tsktsk initialized.")
+        print("Tsktsk initialized.", file=sys.stderr)
     except FileExistsError:
         raise SystemExit("Tsktsk already initialized.")
