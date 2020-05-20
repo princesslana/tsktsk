@@ -2,6 +2,8 @@ from pathlib import Path
 
 
 def init():
-    Path(".tsktsk").touch()
-
-    print("Initialized tsktsk.")
+    try:
+        Path(".tsktsk").touch(exist_ok=False)
+        print("Tsktsk initialized.")
+    except FileExistsError:
+        raise SystemExit("Tsktsk already initialized.")

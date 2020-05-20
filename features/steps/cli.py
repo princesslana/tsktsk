@@ -3,7 +3,7 @@ import shlex
 import subprocess
 from pathlib import Path
 
-
+@given("I have run {command}")
 @when("I run {command}")
 def run(ctx, command):
     try:
@@ -32,12 +32,12 @@ def assert_exit_code(ctx, expected):
 def assert_output_matches(ctx, regex):
     assert re.match(
         regex, ctx.output
-    ), f"Expected output to match {regex}. Output: {ctx.output}"
+    ), f"Expected output to match '{regex}', got '{ctx.output}'"
 
 
 @then("its output should be")
 def assert_output_is(ctx):
-    assert ctx.output == ctx.text, f"Expected output to be {ctx.text}, got {ctx.output}"
+    assert ctx.output == ctx.text, f"Expected output to be '{ctx.text}', got '{ctx.output}'"
 
 
 @then("the file {file_name} should exist")
