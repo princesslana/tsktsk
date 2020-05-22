@@ -40,14 +40,18 @@ CATEGORY = {
 }
 
 VALUE = {"high": "V⬆", "medium": "", "low": "V⬇"}
+EFFORT = {"high": "E⬆", "medium": "", "low": "E⬇"}
 
 
 class Task:
-    def __init__(self, key, message, category="NEW", value="medium", done=None):
+    def __init__(
+        self, key, message, category="NEW", value="medium", effort="medium", done=None
+    ):
         self.key = key
         self.message = message
         self.category = category
         self.value = value
+        self.effort = effort
         self.done = done
 
     def asdict(self):
@@ -55,6 +59,7 @@ class Task:
             "key": self.key,
             "message": self.message,
             "category": self.category,
+            "effort": self.effort,
             "value": self.value,
             "done": self.done,
         }
@@ -63,7 +68,7 @@ class Task:
         self.done = datetime.now().strftime("%Y%m%d")
 
     def __repr__(self):
-        return f"Task({self.key}, {self.message}, {self.category}, {self.value}, {self.done})"
+        return f"Task({self.key}, {self.message}, {self.category}, {self.value}, {self.effort}, {self.done})"
 
     def __str__(self):
         # 50 chars is the recommended length of a git commit summary
@@ -71,16 +76,16 @@ class Task:
 
         # This should be under 80 chars wide, currently 70
         # key:6, space, category:6, space, message:50, space, value:2, space effort 2
-        return f"{self.key:>6} {CATEGORY[self.category]}: {msg:50} {VALUE[self.value]:2}".rstrip()
+        return f"{self.key:>6} {CATEGORY[self.category]}: {msg:50} {VALUE[self.value]:2} {EFFORT[self.effort]:2}".rstrip()
 
 
 class TaskRepository:
     def __init__(self, tasks):
         self.tasks = tasks
 
-    def add(self, category, value, message):
+    def add(self, category, value, effort, message):
         key = str(len(self.tasks) + 1)
-        task = Task(key, message, category, value)
+        task = Task(key, message, category, value, effort)
         self.tasks[key] = task.asdict()
         return task
 
