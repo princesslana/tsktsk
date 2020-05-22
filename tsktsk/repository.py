@@ -1,6 +1,7 @@
 import contextlib
 import yaml
 
+from datetime import datetime
 from pathlib import Path
 
 
@@ -28,16 +29,21 @@ def load():
         yaml.dump(repository.tasks, f)
 
 class Task:
-    def __init__(self, key, message):
+    def __init__(self, key, message, done = None):
         self.key = key
         self.message = message
+        self.done = done
 
     def asdict(self):
         return {
             "key" : self.key,
-            "message" : self.message
+            "message" : self.message,
+            "done" : self.done
         }
 
+    def mark_done(self):
+        self.done = datetime.now().strftime("%Y%m%d")
+         
     def __repr__(self):
         return f"Task({self.key}, {self.message})"
 
@@ -56,6 +62,12 @@ class TaskRepository:
 
     def top(self):
         return next(iter(self))
+
+    @contextlib.contextmanager
+    def task(self, key):
+        task = Task(**self.tasks[key])
+        yield task
+        self.tasks[key] = task.asdict()
 
     def __iter__(self):
         return (Task(**value) for value in self.tasks.values())

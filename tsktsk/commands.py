@@ -40,4 +40,14 @@ def top():
 def list():
     with repository.load() as r:
         for task in r:
-            print(task)
+            if not task.done:
+                print(task)
+
+
+@cli.command()
+@click.argument('key', nargs=-1)
+def done(key):
+    with repository.load() as r:
+        for k in key:
+            with r.task(k) as t:
+                t.mark_done()
