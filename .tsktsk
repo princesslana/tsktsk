@@ -11,3 +11,13 @@
   done: null
   key: '3'
   message: Add task effort
+'4':
+  category: DOC
+  done: null
+  key: '4'
+  message: Write README
+'5':
+  category: NEW
+  done: null
+  key: '5'
+  message: Add tsktsk commit command
