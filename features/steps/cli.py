@@ -45,7 +45,7 @@ def assert_output_is_empty(ctx, stream):
 def assert_output_is(ctx, stream):
     assert (
         ctx.output[stream] == ctx.text
-    ), f"Expected {stream} to be '{ctx.text}', got '{ctx.output[stream]}'"
+    ), f"Expected {stream} to be '{ctx.text!r}', got '{ctx.output[stream]!r}'"
 
 
 @then("the file {file_name} should exist")

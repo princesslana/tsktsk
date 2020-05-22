@@ -4,7 +4,8 @@
   key: '1'
   message: Add types of tasks
 '2':
-  done: null
+  category: NEW
+  done: '20200522'
   key: '2'
   message: Add task value/benefit
 '3':
@@ -21,3 +22,18 @@
   done: null
   key: '5'
   message: Add tsktsk commit command
+'6':
+  category: NEW
+  done: null
+  key: '6'
+  message: Have tsktsk list sort by value/effort
+'7':
+  category: DOC
+  done: null
+  key: '7'
+  message: Pretty up tsktsk --help
+'8':
+  category: NEW
+  done: null
+  key: '8'
+  message: Add tsktsk edit
