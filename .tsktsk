@@ -9,7 +9,8 @@
   key: '2'
   message: Add task value/benefit
 '3':
-  done: null
+  category: NEW
+  done: '20200522'
   key: '3'
   message: Add task effort
 '4':
