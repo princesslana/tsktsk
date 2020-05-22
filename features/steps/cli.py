@@ -26,7 +26,7 @@ def run(ctx, command):
 def assert_exit_code(ctx, expected):
     assert (
         ctx.exit_code == expected
-    ), f"Expected exit code {ctx.exit_code}, got {actual}."
+    ), f"Expected exit code {expected}, got {ctx.exit_code}. stdout was '{ctx.output['stdout']}', stderr was '{ctx.output['stderr']}'"
 
 
 @then("its {stream} should match {regex}")
@@ -35,6 +35,9 @@ def assert_output_matches(ctx, stream, regex):
         regex, ctx.output[stream]
     ), f"Expected {stream} to match '{regex}', got '{ctx.output[stream]}'"
 
+@then("its {stream} should be empty")
+def assert_output_is_empty(ctx, stream):
+    assert not ctx.output[stream], f"Expected {stream} to be empty, got '{ctx.output[stream]}'"
 
 @then("its {stream} should be")
 def assert_output_is(ctx, stream):
