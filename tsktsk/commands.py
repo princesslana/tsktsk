@@ -24,40 +24,30 @@ def init():
         raise SystemExit("Tsktsk already initialized.")
 
 
-def task_add(f):
-    f = cli.command()(f)
-    f = click.argument("message", nargs=-1)(f)
+def task_add(category):
+    @cli.command(category.lower())
+    @click.option(
+        "--value",
+        type=click.Choice(["high", "medium", "low"], case_sensitive=False),
+        default="medium",
+    )
+    @click.argument("message", nargs=-1)
+    def f(*args, **kwargs):
+        add(category, *args, **kwargs)
+
     return f
 
 
-@task_add
-def new(message):
-    add("NEW", message)
+new = task_add("NEW")
+imp = task_add("IMP")
+fix = task_add("FIX")
+doc = task_add("DOC")
+tst = task_add("TST")
 
 
-@task_add
-def imp(message):
-    add("IMP", message)
-
-
-@task_add
-def fix(message):
-    add("FIX", message)
-
-
-@task_add
-def doc(message):
-    add("DOC", message)
-
-
-@task_add
-def tst(message):
-    add("TST", message)
-
-
-def add(category, message):
+def add(category, value, message):
     with repository.load() as r:
-        print(r.add(category, " ".join(message)))
+        print(r.add(category, value, " ".join(message)))
 
 
 @cli.command()
