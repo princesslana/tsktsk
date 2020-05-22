@@ -1,0 +1,12 @@
+'1':
+  done: null
+  key: '1'
+  message: Add types of tasks
+'2':
+  done: null
+  key: '2'
+  message: Add task value/benefit
+'3':
+  done: null
+  key: '3'
+  message: Add task effort
