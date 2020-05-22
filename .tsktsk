@@ -35,6 +35,6 @@
   message: Pretty up tsktsk --help
 '8':
   category: NEW
-  done: null
+  done: '20200522'
   key: '8'
   message: Add tsktsk edit
