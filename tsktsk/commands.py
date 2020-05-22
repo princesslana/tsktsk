@@ -1,8 +1,7 @@
-from pkg_resources import get_distribution
-from pathlib import Path
+import sys
 
 import click
-import sys
+from pkg_resources import get_distribution
 
 from . import repository
 from .repository import RepositoryError
@@ -24,11 +23,42 @@ def init():
     except RepositoryError:
         raise SystemExit("Tsktsk already initialized.")
 
-@cli.command()
-@click.argument('message', nargs=-1)
+
+def task_add(f):
+    f = cli.command()(f)
+    f = click.argument("message", nargs=-1)(f)
+    return f
+
+
+@task_add
 def new(message):
+    add("NEW", message)
+
+
+@task_add
+def imp(message):
+    add("IMP", message)
+
+
+@task_add
+def fix(message):
+    add("FIX", message)
+
+
+@task_add
+def doc(message):
+    add("DOC", message)
+
+
+@task_add
+def tst(message):
+    add("TST", message)
+
+
+def add(category, message):
     with repository.load() as r:
-        print(r.add(" ".join(message)))
+        print(r.add(category, " ".join(message)))
+
 
 @cli.command()
 def top():
@@ -45,7 +75,7 @@ def list():
 
 
 @cli.command()
-@click.argument('key', nargs=-1)
+@click.argument("key", nargs=-1)
 def done(key):
     with repository.load() as r:
         for k in key:

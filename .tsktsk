@@ -1,5 +1,6 @@
 '1':
-  done: null
+  category: NEW
+  done: '20200522'
   key: '1'
   message: Add types of tasks
 '2':
