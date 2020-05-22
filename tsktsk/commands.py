@@ -56,6 +56,37 @@ def add(category, value, effort, message):
 
 
 @cli.command()
+@click.option(
+    "--category",
+    type=click.Choice(["NEW", "IMP", "FIX", "DOC", "TST"], case_sensitive=False),
+)
+@click.option(
+    "--value", type=click.Choice(["high", "medium", "low"], case_sensitive=False)
+)
+@click.option(
+    "--effort", type=click.Choice(["high", "medium", "low"], case_sensitive=False)
+)
+@click.argument("key", nargs=1)
+@click.argument("message", nargs=-1)
+def edit(category, value, effort, key, message):
+    with repository.load() as r:
+        with r.task(key) as t:
+            if category:
+                t.category = category
+
+            if value:
+                t.value = value
+
+            if effort:
+                t.effort = effort
+
+            if message:
+                t.message = " ".join(message)
+
+        print(t)
+
+
+@cli.command()
 def top():
     with repository.load() as r:
         print(r.top())
