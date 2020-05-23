@@ -25,7 +25,7 @@
   message: Add tsktsk commit command
 '6':
   category: NEW
-  done: null
+  done: '20200523'
   key: '6'
   message: Have tsktsk list sort by value/effort
 '7':

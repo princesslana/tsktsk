@@ -95,7 +95,7 @@ def top():
 @cli.command()
 def list():
     with repository.load() as r:
-        for task in r:
+        for task in sorted(r, key=lambda t: (-t.roi, t.key)):
             if not task.done:
                 print(task)
 
