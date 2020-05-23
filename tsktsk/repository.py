@@ -41,6 +41,7 @@ CATEGORY = {
 
 VALUE = {"high": "V⬆", "medium": "", "low": "V⬇"}
 EFFORT = {"high": "E⬆", "medium": "", "low": "E⬇"}
+POINTS = {"high": 8, "medium": 5, "low": 3}
 
 
 class Task:
@@ -63,6 +64,10 @@ class Task:
             "value": self.value,
             "done": self.done,
         }
+
+    @property
+    def roi(self):
+        return POINTS[self.value] / POINTS[self.effort]
 
     def mark_done(self):
         self.done = datetime.now().strftime("%Y%m%d")
