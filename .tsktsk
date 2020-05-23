@@ -16,13 +16,17 @@
 '4':
   category: DOC
   done: null
+  effort: medium
   key: '4'
   message: Write README
+  value: high
 '5':
   category: NEW
   done: null
+  effort: high
   key: '5'
   message: Add tsktsk commit command
+  value: high
 '6':
   category: NEW
   done: '20200523'
@@ -31,8 +35,10 @@
 '7':
   category: DOC
   done: null
+  effort: low
   key: '7'
   message: Pretty up tsktsk --help
+  value: medium
 '8':
   category: NEW
   done: '20200522'
@@ -41,5 +47,7 @@
 '9':
   category: DOC
   done: null
+  effort: low
   key: '9'
   message: Make README pypi friendly
+  value: medium
