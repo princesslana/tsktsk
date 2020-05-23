@@ -38,3 +38,8 @@
   done: '20200522'
   key: '8'
   message: Add tsktsk edit
+'9':
+  category: DOC
+  done: null
+  key: '9'
+  message: Make README pypi friendly
