@@ -9,7 +9,7 @@ Feature: Add
              1 📦 NEW: Setup Project
 
         """
-     When I run tsktsk top
+     When I run tsktsk list
      Then its exit code should be 0
       And its stdout should be
         """
