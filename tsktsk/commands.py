@@ -103,12 +103,6 @@ def edit(category, value, effort, key, message):
         print(t)
 
 
-@cli.command(help="Display the task with the highest value:effort ratio.")
-def top():
-    with repository.load() as r:
-        print(r.top())
-
-
 @cli.command()
 def list():
     "List tasks to be done, with highest value:effort ratio first."

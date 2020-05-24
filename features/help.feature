@@ -20,7 +20,6 @@ Feature: Help
          init  Initialize a new tsktsk repository.
          list  List tasks to be done, with highest value:effort ratio first.
          new   Create a task to add something new.
-         top   Display the task with the highest value:effort ratio.
          tst   Create a task related to testing.
 
        """

@@ -5,7 +5,7 @@
   message: Add types of tasks
 '10':
   category: IMP
-  done: null
+  done: '20200524'
   effort: low
   key: '10'
   message: Remove top command
