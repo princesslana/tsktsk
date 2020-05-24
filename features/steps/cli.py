@@ -1,3 +1,4 @@
+import difflib
 import re
 import shlex
 import subprocess
@@ -45,7 +46,7 @@ def assert_output_is_empty(ctx, stream):
 def assert_output_is(ctx, stream):
     assert (
         ctx.output[stream] == ctx.text
-    ), f"Expected {stream} to be '{ctx.text!r}', got '{ctx.output[stream]!r}'"
+    ), f"Expected {stream} and actual differ. \n{get_diff(ctx.output[stream], ctx.text)}"
 
 
 @then("the file {file_name} should exist")
@@ -53,3 +54,10 @@ def assert_file_exists(ctx, file_name):
     path = Path(ctx.working_directory, file_name)
     assert path.exists(), f"Expected {file_name} to exist. It does not"
     assert path.is_file(), f"Expected {file_name} to be a file. It is not"
+
+
+def get_diff(lhs, rhs):
+    lhs_lines = lhs.splitlines(keepends=True)
+    rhs_lines = rhs.splitlines(keepends=True)
+    diff = difflib.unified_diff(lhs_lines, rhs_lines)
+    return "".join(diff)
