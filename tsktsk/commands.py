@@ -24,9 +24,9 @@ def init():
 
     try:
         repository.create()
-        print("Tsktsk initialized.", file=sys.stderr)
+        print("tsktsk initialized.", file=sys.stderr)
     except RepositoryError:
-        raise SystemExit("Tsktsk already initialized.")
+        raise SystemExit("tsktsk already initialized.")
 
 
 def task_add(category, help):
