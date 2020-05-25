@@ -2,11 +2,12 @@
 
 ![Build](https://github.com/ianagbip1oti/tsktsk/workflows/Build/badge.svg)
 [![Maintainability](https://api.codeclimate.com/v1/badges/016b76d0210ac5243ce1/maintainability)](https://codeclimate.com/github/ianagbip1oti/tsktsk/maintainability)
+[![emoji-log](https://cdn.rawgit.com/ahmadawais/stuff/ca97874/emoji-log/flat-round.svg)](https://github.com/ahmadawais/Emoji-Log/)
 
 tsktsk is a command line based task list for developers.
-It supports adding tasks in five diffent categories and prioritizing them based upon their estimated value provided
+It supports adding tasks in five different categories and prioritizing them based upon their estimated value provided
 and effort required.
-Tasks are stored in a file that can be placed in github alongside your code,
+Tasks are stored in a file that can be placed in version control alongside your code,
 so tasks can be marked as done as part of the commit that completed them.
 
 ## Installing
