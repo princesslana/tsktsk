@@ -11,7 +11,7 @@ so tasks can be marked as done as part of the commit that completed them.
 
 ## Installing
 
-Install tsktsk is best accomplished with pip.
+Installing tsktsk is best accomplished with pip.
 
 ```console
 $ pip install tsktsk
@@ -22,7 +22,7 @@ To install the latest development version, clone the repository and install with
 ## Using
 
 To begin with a tsktsk repository must be initialized.
-To initialize one in the current folder:
+We can initialize one in the current folder.
 
 ```console
 $ tsktsk init
