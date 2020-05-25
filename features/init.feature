@@ -5,7 +5,7 @@ Feature: Initialize
     Then its exit code should be 0
     And its stderr should be
       """
-      Tsktsk initialized.
+      tsktsk initialized.
 
       """
      And the file .tsktsk should exist
@@ -16,6 +16,6 @@ Feature: Initialize
     Then its exit code should be 1
     And its stderr should be
       """
-      Tsktsk already initialized.
+      tsktsk already initialized.
 
       """
