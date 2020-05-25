@@ -10,6 +10,13 @@
   key: '10'
   message: Remove top command
   value: low
+'11':
+  category: NEW
+  done: null
+  effort: high
+  key: '11'
+  message: Task dependencies
+  value: medium
 '2':
   category: NEW
   done: '20200522'
@@ -22,7 +29,7 @@
   message: Add task effort
 '4':
   category: DOC
-  done: null
+  done: '20200525'
   effort: medium
   key: '4'
   message: Write README
