@@ -9,7 +9,7 @@ from .repository import RepositoryError
 __version__ = get_distribution("tsktsk").version
 
 
-@click.group()
+@click.group("tsktsk")
 @click.version_option(version=__version__, message="%(version)s")
 def cli():
     pass
@@ -24,7 +24,7 @@ def init():
 
     try:
         repository.create()
-        print("tsktsk initialized.", file=sys.stderr)
+        click.echo("tsktsk initialized.", err=True)
     except RepositoryError:
         raise SystemExit("tsktsk already initialized.")
 
@@ -70,7 +70,7 @@ tst = task_add("TST", "Create a task related to testing.")
 
 def add(category, value, effort, message):
     with repository.load() as r:
-        print(r.add(category, value, effort, " ".join(message)))
+        click.echo(str(r.add(category, value, effort, " ".join(message))))
 
 
 @cli.command()
@@ -100,7 +100,7 @@ def edit(category, value, effort, key, message):
             if message:
                 t.message = " ".join(message)
 
-        print(t)
+        click.echo(str(t))
 
 
 @cli.command()
@@ -110,7 +110,7 @@ def list():
     with repository.load() as r:
         for task in sorted(r, key=lambda t: (-t.roi, t.key)):
             if not task.done:
-                print(task)
+                click.echo(str(task))
 
 
 @cli.command()
