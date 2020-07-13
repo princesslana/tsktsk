@@ -19,5 +19,10 @@ setup(
     tests_require=test_deps,
     extras_require=extras,
     setup_requires=setup_deps,
-    entry_points={"console_scripts": ["tsktsk=tsktsk.__main__:main"]},
+    entry_points={
+        "console_scripts": [
+            "tsktsk=tsktsk.__main__:main",
+            "tsktsk-bot=tsktsk.__main__:bot",
+        ]
+    },
 )
