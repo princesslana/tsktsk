@@ -1,0 +1,13 @@
+[paths]
+source =
+  tsktsk/
+  */site-packages/tsktsk
+
+[run]
+source=
+  tsktsk
+  test
+  features
+
+[report]
+show_missing=True

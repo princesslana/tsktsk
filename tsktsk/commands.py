@@ -1,5 +1,3 @@
-import sys
-
 import click
 from pkg_resources import get_distribution
 
