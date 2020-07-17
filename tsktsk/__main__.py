@@ -11,5 +11,5 @@ def cli():
 def bot():
     smalld = SmallD()
 
-    with SmallDCliRunner(smalld, cli, prefix="++"):
+    with SmallDCliRunner(smalld, tsktsk, prefix="++"):
         smalld.run()

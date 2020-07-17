@@ -18,6 +18,9 @@ class FileRepository:
 
     @contextlib.contextmanager
     def tasks(self):
+        if not self.path.exists():
+            raise FileNotFoundError("No tsktsk repository here")
+
         with self.path.open(mode="r") as f:
             tasks = yaml.safe_load(f) or {}
 
@@ -29,9 +32,9 @@ class FileRepository:
     @contextlib.contextmanager
     def task(self, key):
         with self.tasks() as tasks:
-            task = Task(**self.tasks[key])
+            task = Task(**tasks[key])
             yield task
-            self.tasks[key] = task.asdict()
+            tasks[key] = task.asdict()
 
     def __iter__(self):
         with self.tasks() as tasks:

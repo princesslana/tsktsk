@@ -1,18 +1,19 @@
+import os
+
 import click
 from pkg_resources import get_distribution
 
-from . import repository
-from .repository import RepositoryError
+from tsktsk import repository
 
 __version__ = get_distribution("tsktsk").version
 
 
 @click.group()
 @click.version_option(version=__version__, message="%(version)s")
-@click.option("--github", default=None)
+@click.option("--github", default=None, help="Manage issues in a github repository.")
 def tsktsk(github):
     if github:
-        os.setenv("GITHUB_REPO", github)
+        os.environ["GITHUB_REPO"] = github
 
     click.get_current_context().obj = repository.load()
 
@@ -31,7 +32,7 @@ def init():
     try:
         repository.create()
         click.echo("tsktsk initialized.", err=True)
-    except RepositoryError:
+    except FileExistsError:
         raise SystemExit("tsktsk already initialized.")
 
 
@@ -75,7 +76,7 @@ tst = task_add("TST", "Create a task related to testing.")
 
 
 def add(category, value, effort, message):
-    click.echo(str(tasks().add(category, value, effort, " ".join(message))))
+    click.echo(tasks().add(category, value, effort, " ".join(message)))
 
 
 @tsktsk.command()
@@ -106,7 +107,7 @@ def edit(category, value, effort, key, message):
         if message:
             t.message = " ".join(message)
 
-    click.echo(str(t))
+    click.echo(t)
 
 
 @tsktsk.command()
@@ -116,7 +117,7 @@ def list():
     r = repository.load()
 
     for task in sorted(r, key=lambda t: (-t.roi, t.key)):
-        click.echo(str(task))
+        click.echo(task)
 
 
 @tsktsk.command()

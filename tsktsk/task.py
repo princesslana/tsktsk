@@ -1,6 +1,8 @@
 import textwrap
 from datetime import datetime
 
+CATEGORY_DEFAULT = "NEW"
+
 CATEGORY = {
     "NEW": "📦 NEW",
     "IMP": "👌 IMP",
@@ -16,7 +18,13 @@ POINTS = {"high": 8, "medium": 5, "low": 3}
 
 class Task:
     def __init__(
-        self, key, message, category="NEW", value="medium", effort="medium", done=None
+        self,
+        key,
+        message,
+        category=CATEGORY_DEFAULT,
+        value="medium",
+        effort="medium",
+        done=None,
     ):
         self.key = key
         self.message = message

@@ -4,22 +4,14 @@
 #
 #    pip-compile --output-file=requirements.txt requirements.in
 #
-aiohttp==3.6.2            # via gql
-async-timeout==3.0.1      # via aiohttp
-attrs==19.3.0             # via aiohttp
 certifi==2020.6.20        # via requests
-chardet==3.0.4            # via aiohttp, requests
+chardet==3.0.4            # via requests
 click==7.1.2              # via -r requirements.in, smalld-click
-gql==3.0.0a1              # via -r requirements.in
-graphql-core==3.1.2       # via gql
-idna==2.10                # via requests, yarl
-multidict==4.7.6          # via aiohttp, yarl
+idna==2.10                # via requests
 pyyaml==5.3.1             # via -r requirements.in
-requests==2.24.0          # via gql, smalld
+requests==2.24.0          # via -r requirements.in, smalld
 six==1.15.0               # via websocket-client
 smalld-click==0.2.0       # via -r requirements.in
 smalld==0.1.5             # via -r requirements.in, smalld-click
 urllib3==1.25.9           # via requests
 websocket-client==0.57.0  # via smalld
-websockets==8.1           # via gql
-yarl==1.4.2               # via aiohttp, gql

@@ -8,8 +8,9 @@ Feature: Help
        Usage: tsktsk [OPTIONS] COMMAND [ARGS]...
 
        Options:
-         --version  Show the version and exit.
-         --help     Show this message and exit.
+         --version      Show the version and exit.
+         --github TEXT  Manage issues in a github repository.
+         --help         Show this message and exit.
 
        Commands:
          doc   Create a task to improve documentation.
