@@ -28,25 +28,35 @@ def task_from_json(issue):
         category = CATEGORY_DEFAULT
         message = title
 
-    labels = {label["name"] for label in issue["labels"]}
+    labels = sorted(label["name"] for label in issue["labels"])
 
     value = next((k for k, v in VALUE.items() if v in labels), VALUE_DEFAULT)
     effort = next((k for k, v in EFFORT.items() if v in labels), EFFORT_DEFAULT)
 
-    return Task(
+    task = Task(
         key=issue["number"],
         message=message,
         category=category,
         effort=effort,
         value=value,
     )
+    task.additional_labels = sorted(
+        l for l in labels if l not in VALUE.values() and l not in EFFORT.values()
+    )
+    return task
 
 
 def task_to_json(task):
-    return {
+    json = {
         "state": "closed" if task.done else "open",
         "title": f"{CATEGORY[task.category]}: {task.message}",
     }
+
+    labels = [l for l in [VALUE[task.value], EFFORT[task.effort]] if l]
+    if labels:
+        json["labels"] = sorted(labels + (task.additional_labels or []))
+
+    return json
 
 
 class GithubRepository:
@@ -92,7 +102,11 @@ class GithubRepository:
 
         after = task_to_json(task)
 
-        changes = {k: after[k] for k, _ in set(after.items()) - set(before.items())}
+        changes = {
+            k: after[k] for k, _ in after.items() if not before.get(k, None) == after[k]
+        }
+
+        print(changes)
 
         if changes:
             self.http.patch(api(f"/repos/{self.repo}/issues/{key}"), json=changes)
