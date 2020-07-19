@@ -2,7 +2,15 @@ import contextlib
 import os
 
 import requests
-from tsktsk.task import CATEGORY, CATEGORY_DEFAULT, Task
+from tsktsk.task import (
+    CATEGORY,
+    CATEGORY_DEFAULT,
+    EFFORT,
+    EFFORT_DEFAULT,
+    VALUE,
+    VALUE_DEFAULT,
+    Task,
+)
 
 
 def api(path):
@@ -20,7 +28,18 @@ def task_from_json(issue):
         category = CATEGORY_DEFAULT
         message = title
 
-    return Task(key=issue["number"], message=message, category=category)
+    labels = {label["name"] for label in issue["labels"]}
+
+    value = next((k for k, v in VALUE.items() if v in labels), VALUE_DEFAULT)
+    effort = next((k for k, v in EFFORT.items() if v in labels), EFFORT_DEFAULT)
+
+    return Task(
+        key=issue["number"],
+        message=message,
+        category=category,
+        effort=effort,
+        value=value,
+    )
 
 
 def task_to_json(task):
@@ -45,12 +64,21 @@ class GithubRepository:
             self.http.auth = auth
 
     def add(self, category, value, effort, message):
-        result = self.http.post(
-            api(f"/repos/{self.repo}/issues"),
-            json={"title": f"{CATEGORY[category]}: {message}"},
-        ).json()
+        json = {"title": f"{CATEGORY[category]}: {message}"}
 
-        return Task(key=result["number"], category=category, message=message)
+        labels = [l for l in [VALUE[value], EFFORT[effort]] if l]
+        if labels:
+            json["labels"] = labels
+
+        result = self.http.post(api(f"/repos/{self.repo}/issues"), json=json).json()
+
+        return Task(
+            key=result["number"],
+            category=category,
+            message=message,
+            effort=effort,
+            value=value,
+        )
 
     @contextlib.contextmanager
     def task(self, key):

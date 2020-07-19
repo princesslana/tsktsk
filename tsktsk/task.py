@@ -2,6 +2,8 @@ import textwrap
 from datetime import datetime
 
 CATEGORY_DEFAULT = "NEW"
+VALUE_DEFAULT = "medium"
+EFFORT_DEFAULT = "medium"
 
 CATEGORY = {
     "NEW": "📦 NEW",
@@ -22,8 +24,8 @@ class Task:
         key,
         message,
         category=CATEGORY_DEFAULT,
-        value="medium",
-        effort="medium",
+        value=VALUE_DEFAULT,
+        effort=EFFORT_DEFAULT,
         done=None,
     ):
         self.key = key
