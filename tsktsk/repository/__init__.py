@@ -14,6 +14,6 @@ def create():
 
 def load():
     try:
-        return GithubRepository(os.environ["GITHUB_REPO"])
+        return GithubRepository(os.environ["TSKTSK_GITHUB_REPO"])
     except KeyError:
         return FileRepository(Path(".tsktsk"))

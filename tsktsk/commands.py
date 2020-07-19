@@ -3,6 +3,7 @@ import os
 import click
 from pkg_resources import get_distribution
 
+from dotenv import load_dotenv
 from tsktsk import repository
 
 __version__ = get_distribution("tsktsk").version
@@ -12,8 +13,10 @@ __version__ = get_distribution("tsktsk").version
 @click.version_option(version=__version__, message="%(version)s")
 @click.option("--github", default=None, help="Manage issues in a github repository.")
 def tsktsk(github):
+    load_dotenv()
+
     if github:
-        os.environ["GITHUB_REPO"] = github
+        os.environ["TSKTSK_GITHUB_REPO"] = github
 
     click.get_current_context().obj = repository.load()
 
@@ -129,3 +132,6 @@ def done(key):
 
     with r.task(key) as t:
         t.mark_done()
+
+    click.echo("Marked as done:", err=True)
+    click.echo(t, err=True)
