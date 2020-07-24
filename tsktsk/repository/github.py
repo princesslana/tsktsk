@@ -106,8 +106,6 @@ class GithubRepository:
             k: after[k] for k, _ in after.items() if not before.get(k, None) == after[k]
         }
 
-        print(changes)
-
         if changes:
             self.http.patch(api(f"/repos/{self.repo}/issues/{key}"), json=changes)
 
