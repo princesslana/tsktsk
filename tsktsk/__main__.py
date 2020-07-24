@@ -1,15 +1,15 @@
-from .commands import cli
+from smalld import SmallD
+from smalld_click import SmallDCliRunner
+
+from .commands import tsktsk
 
 
-def main():
-    cli()
+def cli():
+    tsktsk()
 
 
 def bot():
-    from smalld import SmallD
-    from smalld_click import SmallDCliRunner
-
     smalld = SmallD()
 
-    with SmallDCliRunner(smalld, cli, prefix="++"):
+    with SmallDCliRunner(smalld, tsktsk, prefix="++"):
         smalld.run()

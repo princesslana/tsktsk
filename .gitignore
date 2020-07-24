@@ -1,6 +1,7 @@
 *.egg-info
 .coverage
 .eggs
+.env
 .tox
 __pycache__
 build

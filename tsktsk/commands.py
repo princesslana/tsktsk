@@ -1,29 +1,41 @@
+import os
+
 import click
 from pkg_resources import get_distribution
 
-from . import repository
-from .repository import RepositoryError
+from dotenv import load_dotenv
+from tsktsk import repository
 
 __version__ = get_distribution("tsktsk").version
 
 
-@click.group("tsktsk")
+@click.group()
 @click.version_option(version=__version__, message="%(version)s")
-def cli():
-    pass
+@click.option("--github", default=None, help="Manage issues in a github repository.")
+def tsktsk(github):
+    load_dotenv()
+
+    if github:
+        os.environ["TSKTSK_GITHUB_REPO"] = github
+
+    click.get_current_context().obj = repository.load()
+
+
+def tasks():
+    return click.get_current_context().obj
 
 
 estimate = click.Choice(["high", "medium", "low"], case_sensitive=False)
 
 
-@cli.command()
+@tsktsk.command()
 def init():
     "Initialize a new tsktsk repository."
 
     try:
         repository.create()
         click.echo("tsktsk initialized.", err=True)
-    except RepositoryError:
+    except FileExistsError:
         raise SystemExit("tsktsk already initialized.")
 
 
@@ -39,7 +51,7 @@ def task_add(category, help):
         specified, it defaults to medium/medium.
         """
 
-    @cli.command(category.lower(), help=long_help)
+    @tsktsk.command(category.lower(), help=long_help)
     @click.option(
         "--value",
         type=estimate,
@@ -67,11 +79,10 @@ tst = task_add("TST", "Create a task related to testing.")
 
 
 def add(category, value, effort, message):
-    with repository.load() as r:
-        click.echo(str(r.add(category, value, effort, " ".join(message))))
+    click.echo(tasks().add(category, value, effort, " ".join(message)))
 
 
-@cli.command()
+@tsktsk.command()
 @click.option(
     "--category",
     type=click.Choice(["NEW", "IMP", "FIX", "DOC", "TST"], case_sensitive=False),
@@ -84,38 +95,43 @@ def add(category, value, effort, message):
 def edit(category, value, effort, key, message):
     "Edit an existing task. KEY specifies which task."
 
-    with repository.load() as r:
-        with r.task(key) as t:
-            if category:
-                t.category = category
+    r = repository.load()
 
-            if value:
-                t.value = value
+    with r.task(key) as t:
+        if category:
+            t.category = category
 
-            if effort:
-                t.effort = effort
+        if value:
+            t.value = value
 
-            if message:
-                t.message = " ".join(message)
+        if effort:
+            t.effort = effort
 
-        click.echo(str(t))
+        if message:
+            t.message = " ".join(message)
+
+    click.echo(t)
 
 
-@cli.command()
+@tsktsk.command()
 def list():
     "List tasks to be done, with highest value:effort ratio first."
 
-    with repository.load() as r:
-        for task in sorted(r, key=lambda t: (-t.roi, t.key)):
-            if not task.done:
-                click.echo(str(task))
+    r = repository.load()
+
+    for task in sorted(r, key=lambda t: (-t.roi, t.key)):
+        click.echo(task)
 
 
-@cli.command()
+@tsktsk.command()
 @click.argument("key", nargs=1)
 def done(key):
     "Mark a task as done. KEY specifies which task."
 
-    with repository.load() as r:
-        with r.task(key) as t:
-            t.mark_done()
+    r = repository.load()
+
+    with r.task(key) as t:
+        t.mark_done()
+
+    click.echo("Marked as done:", err=True)
+    click.echo(t, err=True)

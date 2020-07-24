@@ -1,8 +1,9 @@
 # tsktsk
 
+[![PyPI version](https://badge.fury.io/py/smalld.svg)](https://badge.fury.io/py/smalld)
 ![Build](https://github.com/ianagbip1oti/tsktsk/workflows/Build/badge.svg)
 [![Maintainability](https://api.codeclimate.com/v1/badges/016b76d0210ac5243ce1/maintainability)](https://codeclimate.com/github/ianagbip1oti/tsktsk/maintainability)
-[![emoji-log](https://cdn.rawgit.com/ahmadawais/stuff/ca97874/emoji-log/flat-round.svg)](https://github.com/ahmadawais/Emoji-Log/)
+[![Discord](https://img.shields.io/discord/417389758470422538)](https://discord.gg/3aTVQtz)
 
 tsktsk is a command line based task list for developers.
 It supports adding tasks in five different categories and prioritizing them based upon their estimated value provided
@@ -20,17 +21,47 @@ $ pip install tsktsk
 
 To install the latest development version, clone the repository and install with `python setup.py install`.
 
-## Using
+## Initializing
 
 To begin with a tsktsk repository must be initialized.
-We can initialize one in the current folder.
+
+### GitHub
+
+Tsktsk can read tasks from a GitHub repository.
+It will fetch details of the repository and authentication from environment variables or
+from a local `.env` file.
+
+For example our `.env` file may be:
+
+```
+TSKTSK_GITHUB_REPO=ianagbip1oti/tsktsk
+TSKTSK_GITHUB_USERNAME=ianagbip1oti
+TSKTSK_GITHUB_TOKEN= < insert token here >
+```
+
+The token used here is a [personal access token](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token) from GitHub.
+
+A GitHub repository may also be specified from the command line using the `--github` flag.
+Authentication details must still be configured via environment variables or a `.env` file.
+
+```console
+$ tsktsk --github=ianagbip1oti/tsktsk list
+```
+
+### File
+
+Tasks can be stored locally in a file.
+We can initialize a task list in the current folder by using the init command.
 
 ```console
 $ tsktsk init
 tsktsk initialized.
 ```
 
-We can now begin creating tasks.
+
+## Using
+
+After initializing we can now begin creating tasks.
 
 ```console
 $ tsktsk new My First Task
@@ -122,13 +153,15 @@ $ tsktsk list
  
 ## Examples
 
-tsktsk itself uses tsktsk to track issues. After installing tsktsk and cloning the repository, you can run `tsktsk list` to see the current task list for tsktsk development.
+tsktsk itself uses tsktsk to track issues. After installing tsktsk and cloning the repository, you can run `tsktsk --github=ianagbip1oti/tsktsk list` to see the current task list for tsktsk development.
+
+## Contact
+
+Reach out to the [Discord Projects Hub](https://discord.gg/3aTVQtz) on Discord and look for the tsktsk channel.
 
 ## Contributing
 
 [View the current task list for tsktsk](#examples), choose one, and jump right in! (don't let that stop you from working on something not in that list if you think it needs doing)
-
-If you have questions, go to [The Programmers Hangout](https://discord.gg/programming) and look for Princess Lana (Lana#4231).
 
 * [Tox](https://tox.readthedocs.io/) is used for running tests.
   * Run `tox -e` to run tests with your installed python version

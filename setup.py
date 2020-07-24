@@ -14,7 +14,7 @@ setup(
     setup_requires=["setuptools-scm==3.3.3"],
     entry_points={
         "console_scripts": [
-            "tsktsk=tsktsk.__main__:main",
+            "tsktsk=tsktsk.__main__:cli",
             "tsktsk-bot=tsktsk.__main__:bot",
         ]
     },
