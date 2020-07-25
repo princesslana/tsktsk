@@ -54,7 +54,7 @@ class Task:
         self.done = datetime.now().strftime("%Y%m%d")
 
     def __repr__(self) -> str:
-        return "Task(" + "".join(f"{k}={v}" for k, v in self.asdict().items()) + ")"
+        return "Task(" + ",".join(f"{k}={v!r}" for k, v in self.asdict().items()) + ")"
 
     def __str__(self) -> str:
         # 50 chars is the recommended length of a git commit summary
@@ -67,3 +67,9 @@ class Task:
             f"{CATEGORY[self.category]}: "
             f"{msg:50} {VALUE[self.value]:2} {EFFORT[self.effort]:2}".rstrip()
         )
+
+    def __eq__(self, other: Any) -> bool:
+        if isinstance(other, self.__class__):
+            return self.__dict__ == other.__dict__
+        else:
+            return False
