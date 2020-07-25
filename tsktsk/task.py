@@ -1,6 +1,8 @@
 import textwrap
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import Optional
+
+import attr
 
 CATEGORY_DEFAULT = "NEW"
 VALUE_DEFAULT = "medium"
@@ -19,32 +21,14 @@ EFFORT = {"high": "E⬆", "medium": "", "low": "E⬇"}
 POINTS = {"high": 8, "medium": 5, "low": 3}
 
 
+@attr.s(auto_attribs=True)
 class Task:
-    def __init__(
-        self,
-        key: str,
-        message: str,
-        category: str = CATEGORY_DEFAULT,
-        value: str = VALUE_DEFAULT,
-        effort: str = EFFORT_DEFAULT,
-        done: Optional[str] = None,
-    ):
-        self.key = key
-        self.message = message
-        self.category = category
-        self.value = value
-        self.effort = effort
-        self.done = done
-
-    def asdict(self) -> Dict[str, Any]:
-        return {
-            "key": self.key,
-            "message": self.message,
-            "category": self.category,
-            "value": self.value,
-            "effort": self.effort,
-            "done": self.done,
-        }
+    key: str
+    message: str
+    category: str = CATEGORY_DEFAULT
+    value: str = VALUE_DEFAULT
+    effort: str = EFFORT_DEFAULT
+    done: Optional[str] = None
 
     @property
     def roi(self) -> float:
@@ -52,9 +36,6 @@ class Task:
 
     def mark_done(self) -> None:
         self.done = datetime.now().strftime("%Y%m%d")
-
-    def __repr__(self) -> str:
-        return "Task(" + ",".join(f"{k}={v!r}" for k, v in self.asdict().items()) + ")"
 
     def __str__(self) -> str:
         # 50 chars is the recommended length of a git commit summary
@@ -67,9 +48,3 @@ class Task:
             f"{CATEGORY[self.category]}: "
             f"{msg:50} {VALUE[self.value]:2} {EFFORT[self.effort]:2}".rstrip()
         )
-
-    def __eq__(self, other: Any) -> bool:
-        if isinstance(other, self.__class__):
-            return self.__dict__ == other.__dict__
-        else:
-            return False

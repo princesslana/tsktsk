@@ -24,11 +24,6 @@ def task(draw):
 
 
 @hypothesis.given(task=task())
-def test_asdict_inverts_constructor(task):
-    assert Task(**task.asdict()) == task
-
-
-@hypothesis.given(task=task())
 def test_repr_inverts_eval(task):
     assert eval(repr(task)) == task
 
