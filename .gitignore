@@ -2,6 +2,7 @@
 .coverage
 .eggs
 .env
+.hypothesis
 .pytype
 .tox
 __pycache__
