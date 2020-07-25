@@ -1,7 +1,9 @@
 import contextlib
 import os
+from typing import Any, Dict, Iterator
 
 import requests
+
 from tsktsk.task import (
     CATEGORY,
     CATEGORY_DEFAULT,
@@ -12,12 +14,21 @@ from tsktsk.task import (
     Task,
 )
 
+JsonObject = Dict[str, Any]
 
-def api(path):
+
+def api(path: str) -> str:
     return f"https://api.github.com{path}"
 
 
-def task_from_json(issue):
+class GithubTask(Task):
+    def __init__(self, **kwargs: Any):
+        self.additional_labels = kwargs.pop("additional_labels", None)
+
+        super().__init__(**kwargs)
+
+
+def task_from_json(issue: JsonObject) -> GithubTask:
     title = issue["title"]
 
     if ":" in title:
@@ -33,20 +44,20 @@ def task_from_json(issue):
     value = next((k for k, v in VALUE.items() if v in labels), VALUE_DEFAULT)
     effort = next((k for k, v in EFFORT.items() if v in labels), EFFORT_DEFAULT)
 
-    task = Task(
+    task = GithubTask(
         key=issue["number"],
         message=message,
         category=category,
         effort=effort,
         value=value,
-    )
-    task.additional_labels = sorted(
-        l for l in labels if l not in VALUE.values() and l not in EFFORT.values()
+        additional_labels=sorted(
+            l for l in labels if l not in VALUE.values() and l not in EFFORT.values()
+        ),
     )
     return task
 
 
-def task_to_json(task):
+def task_to_json(task: GithubTask) -> JsonObject:
     json = {
         "state": "closed" if task.done else "open",
         "title": f"{CATEGORY[task.category]}: {task.message}",
@@ -60,7 +71,7 @@ def task_to_json(task):
 
 
 class GithubRepository:
-    def __init__(self, repo):
+    def __init__(self, repo: str):
         self.repo = repo
 
         self.http = requests.Session()
@@ -73,7 +84,7 @@ class GithubRepository:
         if auth != (None, None):
             self.http.auth = auth
 
-    def add(self, category, value, effort, message):
+    def add(self, category: str, value: str, effort: str, message: str) -> Task:
         json = {"title": f"{CATEGORY[category]}: {message}"}
 
         labels = [l for l in [VALUE[value], EFFORT[effort]] if l]
@@ -91,7 +102,7 @@ class GithubRepository:
         )
 
     @contextlib.contextmanager
-    def task(self, key):
+    def task(self, key: str) -> Iterator[Task]:
         issue = self.http.get(api(f"/repos/{self.repo}/issues/{key}")).json()
 
         task = task_from_json(issue)
@@ -109,7 +120,7 @@ class GithubRepository:
         if changes:
             self.http.patch(api(f"/repos/{self.repo}/issues/{key}"), json=changes)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Task]:
         result = self.http.get(api(f"/repos/{self.repo}/issues?state=open")).json()
 
         issues = (issue for issue in result if not issue.get("pull_request"))

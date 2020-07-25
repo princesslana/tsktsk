@@ -1,11 +1,13 @@
 import os
 from pathlib import Path
+from typing import Any, Callable, Optional
 
 import click
+from dotenv import load_dotenv
 from pkg_resources import get_distribution
 
-from dotenv import load_dotenv
 from tsktsk import repository
+from tsktsk.repository import Repository
 
 __version__ = get_distribution("tsktsk").version
 
@@ -13,7 +15,7 @@ __version__ = get_distribution("tsktsk").version
 @click.group()
 @click.version_option(version=__version__, message="%(version)s")
 @click.option("--github", default=None, help="Manage issues in a github repository.")
-def tsktsk(github):
+def tsktsk(github: Optional[str]) -> None:
     load_dotenv(Path(".env"))
 
     if github:
@@ -22,7 +24,7 @@ def tsktsk(github):
     click.get_current_context().obj = repository.load()
 
 
-def tasks():
+def tasks() -> Repository:
     return click.get_current_context().obj
 
 
@@ -30,7 +32,7 @@ estimate = click.Choice(["high", "medium", "low"], case_sensitive=False)
 
 
 @tsktsk.command()
-def init():
+def init() -> None:
     "Initialize a new tsktsk repository."
 
     try:
@@ -40,7 +42,7 @@ def init():
         raise SystemExit("tsktsk already initialized.")
 
 
-def task_add(category, help):
+def task_add(category: str, help: str) -> Callable[..., None]:
     long_help = f"""
         {help}
 
@@ -66,7 +68,7 @@ def task_add(category, help):
         help="Effort required to complete this task.",
     )
     @click.argument("message", nargs=-1, required=True)
-    def f(*args, **kwargs):
+    def f(*args: Any, **kwargs: Any) -> None:
         add(category, *args, **kwargs)
 
     return f
@@ -79,7 +81,7 @@ doc = task_add("DOC", "Create a task to improve documentation.")
 tst = task_add("TST", "Create a task related to testing.")
 
 
-def add(category, value, effort, message):
+def add(category: str, value: str, effort: str, message: str) -> None:
     click.echo(tasks().add(category, value, effort, " ".join(message)))
 
 
@@ -93,7 +95,13 @@ def add(category, value, effort, message):
 @click.option("--effort", type=estimate, help="Effort required to complete this task.")
 @click.argument("key", nargs=1)
 @click.argument("message", nargs=-1)
-def edit(category, value, effort, key, message):
+def edit(
+    category: Optional[str],
+    value: Optional[str],
+    effort: Optional[str],
+    key: Optional[str],
+    message: Optional[str],
+) -> None:
     "Edit an existing task. KEY specifies which task."
 
     r = repository.load()
@@ -115,7 +123,7 @@ def edit(category, value, effort, key, message):
 
 
 @tsktsk.command()
-def list():
+def list() -> None:
     "List tasks to be done, with highest value:effort ratio first."
 
     r = repository.load()
@@ -126,7 +134,7 @@ def list():
 
 @tsktsk.command()
 @click.argument("key", nargs=1)
-def done(key):
+def done(key: str) -> None:
     "Mark a task as done. KEY specifies which task."
 
     r = repository.load()
