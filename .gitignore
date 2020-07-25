@@ -2,6 +2,7 @@
 .coverage
 .eggs
 .env
+.pytype
 .tox
 __pycache__
 build

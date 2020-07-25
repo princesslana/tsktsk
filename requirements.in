@@ -4,3 +4,4 @@ PyYAML==5.3.1
 requests==2.24.0
 smalld-click==0.2.0
 smalld==0.1.5
+typing-extensions==3.7.4.2

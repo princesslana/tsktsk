@@ -1,5 +1,6 @@
 import textwrap
 from datetime import datetime
+from typing import Any, Dict, Optional
 
 CATEGORY_DEFAULT = "NEW"
 VALUE_DEFAULT = "medium"
@@ -21,12 +22,12 @@ POINTS = {"high": 8, "medium": 5, "low": 3}
 class Task:
     def __init__(
         self,
-        key,
-        message,
-        category=CATEGORY_DEFAULT,
-        value=VALUE_DEFAULT,
-        effort=EFFORT_DEFAULT,
-        done=None,
+        key: str,
+        message: str,
+        category: str = CATEGORY_DEFAULT,
+        value: str = VALUE_DEFAULT,
+        effort: str = EFFORT_DEFAULT,
+        done: Optional[str] = None,
     ):
         self.key = key
         self.message = message
@@ -35,7 +36,7 @@ class Task:
         self.effort = effort
         self.done = done
 
-    def asdict(self):
+    def asdict(self) -> Dict[str, Any]:
         return {
             "key": self.key,
             "message": self.message,
@@ -46,16 +47,16 @@ class Task:
         }
 
     @property
-    def roi(self):
+    def roi(self) -> float:
         return POINTS[self.value] / POINTS[self.effort]
 
-    def mark_done(self):
+    def mark_done(self) -> None:
         self.done = datetime.now().strftime("%Y%m%d")
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "Task(" + "".join(f"{k}={v}" for k, v in self.asdict().items()) + ")"
 
-    def __str__(self):
+    def __str__(self) -> str:
         # 50 chars is the recommended length of a git commit summary
         msg = textwrap.shorten(self.message, width=50)
 
