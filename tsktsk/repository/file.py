@@ -1,8 +1,8 @@
 import contextlib
+import dataclasses
 from pathlib import Path
 from typing import Any, Dict, Iterator
 
-import attr
 import yaml
 
 from tsktsk.task import Task
@@ -18,7 +18,7 @@ class FileRepository:
         with self.tasks() as tasks:
             key = str(len(tasks) + 1)
             task = Task(key, message, category, value, effort)
-            tasks[key] = attr.asdict(task)
+            tasks[key] = dataclasses.asdict(task)
 
         return task
 
@@ -40,7 +40,7 @@ class FileRepository:
         with self.tasks() as tasks:
             task = Task(**tasks[key])
             yield task
-            tasks[key] = attr.asdict(task)
+            tasks[key] = dataclasses.asdict(task)
 
     def __iter__(self) -> Iterator[Task]:
         with self.tasks() as tasks:
