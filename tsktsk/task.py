@@ -1,8 +1,7 @@
+import dataclasses
 import textwrap
 from datetime import datetime
 from typing import Optional
-
-import attr
 
 CATEGORY_DEFAULT = "NEW"
 VALUE_DEFAULT = "medium"
@@ -21,7 +20,7 @@ EFFORT = {"high": "E⬆", "medium": "", "low": "E⬇"}
 POINTS = {"high": 8, "medium": 5, "low": 3}
 
 
-@attr.s(auto_attribs=True)
+@dataclasses.dataclass
 class Task:
     key: str
     message: str
