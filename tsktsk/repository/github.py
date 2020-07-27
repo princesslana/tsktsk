@@ -1,9 +1,10 @@
 import contextlib
-import os
-from typing import Any, Dict, Iterator
+import dataclasses
+from typing import Any, Dict, Iterator, Optional
 
 import requests
 
+from tsktsk.config import GithubAuth
 from tsktsk.task import (
     CATEGORY,
     CATEGORY_DEFAULT,
@@ -71,18 +72,14 @@ def task_to_json(task: GithubTask) -> JsonObject:
 
 
 class GithubRepository:
-    def __init__(self, repo: str):
+    def __init__(self, repo: str, auth: Optional[GithubAuth] = None):
         self.repo = repo
 
         self.http = requests.Session()
         self.http.headers.update({"Accept": "application/vnd.github.v3+json"})
 
-        auth = (
-            os.environ.get("TSKTSK_GITHUB_USERNAME"),
-            os.environ.get("TSKTSK_GITHUB_TOKEN"),
-        )
-        if auth != (None, None):
-            self.http.auth = auth
+        if auth:
+            self.http.auth = dataclasses.astuple(auth)
 
     def add(self, category: str, value: str, effort: str, message: str) -> Task:
         json = {"title": f"{CATEGORY[category]}: {message}"}
