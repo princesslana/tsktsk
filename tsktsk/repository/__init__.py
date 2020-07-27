@@ -1,11 +1,10 @@
-import os
 from pathlib import Path
 from typing import Callable, ContextManager, Iterable
 
 from typing_extensions import Protocol
 
-from tsktsk.repository.file import FileRepository
-from tsktsk.repository.github import GithubRepository
+from tsktsk.repository.file import FileRepository  # noqa
+from tsktsk.repository.github import GithubRepository  # noqa
 from tsktsk.task import Task
 
 
@@ -22,10 +21,3 @@ def create() -> None:
         Path(".tsktsk").touch(exist_ok=False)
     except FileExistsError:
         raise FileExistsError("Repository already exists")
-
-
-def load() -> Repository:
-    try:
-        return GithubRepository(os.environ["TSKTSK_GITHUB_REPO"])
-    except KeyError:
-        return FileRepository(Path(".tsktsk"))

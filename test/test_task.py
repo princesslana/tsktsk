@@ -16,6 +16,7 @@ def task(draw):
         st.text(
             alphabet=string.digits + string.ascii_letters + string.punctuation,
             min_size=1,
+            max_size=6,
         )
     )
     message = draw(st.text(alphabet=string.printable, min_size=1))

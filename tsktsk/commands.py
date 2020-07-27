@@ -3,13 +3,31 @@ from pathlib import Path
 from typing import Any, Callable, Optional
 
 import click
+import smalld_click
 from dotenv import load_dotenv
 from pkg_resources import get_distribution
 
-from tsktsk import repository
-from tsktsk.repository import Repository
+import tsktsk.repository as repository
+from tsktsk.config import Config, GithubAuth
+from tsktsk.repository import FileRepository, GithubRepository, Repository
 
 __version__ = get_distribution("tsktsk").version
+
+
+def find_github_auth(config: Config) -> Optional[GithubAuth]:
+    conversation = smalld_click.get_conversation()
+    if conversation:
+        user = next(
+            (
+                name
+                for name, user_id in config.discord_users.items()
+                if user_id == conversation.user_id
+            ),
+            None,
+        )
+        return config.github_users.get(user)
+    else:
+        return config.single_github_auth
 
 
 @click.group()
@@ -21,7 +39,16 @@ def tsktsk(github: Optional[str]) -> None:
     if github:
         os.environ["TSKTSK_GITHUB_REPO"] = github
 
-    click.get_current_context().obj = repository.load()
+    config = Config()
+
+    tasks = FileRepository(Path(".tsktsk"))
+
+    if config.single_github_repository:
+        tasks = GithubRepository(
+            config.single_github_repository, find_github_auth(config)
+        )
+
+    click.get_current_context().obj = tasks
 
 
 def tasks() -> Repository:
@@ -104,9 +131,7 @@ def edit(
 ) -> None:
     "Edit an existing task. KEY specifies which task."
 
-    r = repository.load()
-
-    with r.task(key) as t:
+    with tasks().task(key) as t:
         if category:
             t.category = category
 
@@ -126,9 +151,7 @@ def edit(
 def list() -> None:
     "List tasks to be done, with highest value:effort ratio first."
 
-    r = repository.load()
-
-    for task in sorted(r, key=lambda t: (-t.roi, t.key)):
+    for task in sorted(tasks(), key=lambda t: (-t.roi, t.key)):
         click.echo(task)
 
 
@@ -137,9 +160,7 @@ def list() -> None:
 def done(key: str) -> None:
     "Mark a task as done. KEY specifies which task."
 
-    r = repository.load()
-
-    with r.task(key) as t:
+    with tasks().task(key) as t:
         t.mark_done()
 
     click.echo("Marked as done:", err=True)
