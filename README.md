@@ -5,11 +5,11 @@
 [![Maintainability](https://api.codeclimate.com/v1/badges/016b76d0210ac5243ce1/maintainability)](https://codeclimate.com/github/ianagbip1oti/tsktsk/maintainability)
 [![Discord](https://img.shields.io/discord/417389758470422538)](https://discord.gg/3aTVQtz)
 
-tsktsk is a command line based task list for developers.
+Tsktsk is a task list aimed at helping prioritize and categorize your tasks.
 It supports adding tasks in five different categories and prioritizing them based upon their estimated value provided
 and effort required.
-Tasks are stored in a file that can be placed in version control alongside your code,
-so tasks can be marked as done as part of the commit that completed them.
+There are two options for storing your tasks.
+Tasks can be stored in a file or they can be stored as Github issues.
 
 ## Installing
 
