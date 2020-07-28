@@ -1,11 +1,10 @@
 from pathlib import Path
 from typing import Callable, ContextManager, Iterable
 
-from typing_extensions import Protocol
-
 from tsktsk.repository.file import FileRepository  # noqa
 from tsktsk.repository.github import GithubRepository  # noqa
 from tsktsk.task import Task
+from typing_extensions import Protocol
 
 
 class Repository(Iterable[Task], Protocol):

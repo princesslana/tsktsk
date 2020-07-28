@@ -1,11 +1,10 @@
 from smalld import SmallD
 from smalld_click import SmallDCliRunner
-
 from tsktsk.commands import root
 
 
 def cli():
-    import tsktsk.commands.cli
+    import tsktsk.commands.cli  # noqa
 
     root()
 
