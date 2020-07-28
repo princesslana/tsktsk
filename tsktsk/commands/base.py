@@ -3,10 +3,10 @@ from pathlib import Path
 from typing import Any, Callable, Optional
 
 import click
-import smalld_click
-from dotenv import load_dotenv
 
+import smalld_click
 import tsktsk
+from dotenv import load_dotenv
 from tsktsk.config import Config, GithubAuth
 from tsktsk.repository import FileRepository, GithubRepository, Repository
 

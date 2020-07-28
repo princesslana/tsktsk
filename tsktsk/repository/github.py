@@ -3,7 +3,6 @@ import dataclasses
 from typing import Any, Dict, Iterator, Optional
 
 import requests
-
 from tsktsk.config import GithubAuth
 from tsktsk.task import (
     CATEGORY,
