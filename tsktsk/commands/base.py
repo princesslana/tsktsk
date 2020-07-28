@@ -5,13 +5,10 @@ from typing import Any, Callable, Optional
 import click
 import smalld_click
 from dotenv import load_dotenv
-from pkg_resources import get_distribution
 
-import tsktsk.repository as repository
+import tsktsk
 from tsktsk.config import Config, GithubAuth
 from tsktsk.repository import FileRepository, GithubRepository, Repository
-
-__version__ = get_distribution("tsktsk").version
 
 
 def find_github_auth(config: Config) -> Optional[GithubAuth]:
@@ -30,10 +27,10 @@ def find_github_auth(config: Config) -> Optional[GithubAuth]:
         return config.single_github_auth
 
 
-@click.group()
-@click.version_option(version=__version__, message="%(version)s")
+@click.group("tsktsk")
+@click.version_option(version=tsktsk.__version__, message="%(version)s")
 @click.option("--github", default=None, help="Manage issues in a github repository.")
-def tsktsk(github: Optional[str]) -> None:
+def root(github: Optional[str]) -> None:
     load_dotenv(Path(".env"))
 
     if github:
@@ -58,17 +55,6 @@ def tasks() -> Repository:
 estimate = click.Choice(["high", "medium", "low"], case_sensitive=False)
 
 
-@tsktsk.command()
-def init() -> None:
-    "Initialize a new tsktsk repository."
-
-    try:
-        repository.create()
-        click.echo("tsktsk initialized.", err=True)
-    except FileExistsError:
-        raise SystemExit("tsktsk already initialized.")
-
-
 def task_add(category: str, help: str) -> Callable[..., None]:
     long_help = f"""
         {help}
@@ -81,7 +67,7 @@ def task_add(category: str, help: str) -> Callable[..., None]:
         specified, it defaults to medium/medium.
         """
 
-    @tsktsk.command(category.lower(), help=long_help)
+    @root.command(category.lower(), help=long_help)
     @click.option(
         "--value",
         type=estimate,
@@ -112,7 +98,7 @@ def add(category: str, value: str, effort: str, message: str) -> None:
     click.echo(tasks().add(category, value, effort, " ".join(message)))
 
 
-@tsktsk.command()
+@root.command()
 @click.option(
     "--category",
     type=click.Choice(["NEW", "IMP", "FIX", "DOC", "TST"], case_sensitive=False),
@@ -147,7 +133,7 @@ def edit(
     click.echo(t)
 
 
-@tsktsk.command()
+@root.command()
 def list() -> None:
     "List tasks to be done, with highest value:effort ratio first."
 
@@ -155,7 +141,7 @@ def list() -> None:
         click.echo(task)
 
 
-@tsktsk.command()
+@root.command()
 @click.argument("key", nargs=1)
 def done(key: str) -> None:
     "Mark a task as done. KEY specifies which task."

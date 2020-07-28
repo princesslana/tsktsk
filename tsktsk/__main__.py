@@ -1,15 +1,17 @@
 from smalld import SmallD
 from smalld_click import SmallDCliRunner
 
-from .commands import tsktsk
+from tsktsk.commands import root
 
 
 def cli():
-    tsktsk()
+    import tsktsk.commands.cli
+
+    root()
 
 
 def bot():
     smalld = SmallD()
 
-    with SmallDCliRunner(smalld, tsktsk, prefix="++"):
+    with SmallDCliRunner(smalld, root, prefix=""):
         smalld.run()
