@@ -27,8 +27,8 @@ def create_repository(ctx):
     ctx.execute_steps(
         """
         Given I have run git init
-          And I have run git config --local user.email "user@email.com"
-          And I have run git config --local user.name "User Name"
+          And I have run git config user.email "user@email.com"
+          And I have run git config user.name "User Name"
         """
     )
 

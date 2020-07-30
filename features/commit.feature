@@ -22,29 +22,13 @@ Feature: Commit
      Then its exit code should be 0
      When I run git log --pretty=%s -1
      Then its stdout should be
-      """
-      📦 NEW: First Task
+        """
+        📦 NEW: First Task
 
-      """
+        """
      When I run tsktsk list
      Then its stdout should be
         """
              1 📦 NEW: First Task
 
         """
-
-  Scenario: when committing task with changes and marking it as done
-    Given I have a git repository
-      And I have run tsktsk init
-      And I have run tsktsk new First Task
-      And I have added a file to staging
-     When I run tsktsk commit 1 --done
-     Then its exit code should be 0
-     When I run git log --pretty=%s -1
-     Then its stdout should be
-      """
-      📦 NEW: First Task
-
-      """
-     When I run tsktsk list
-     Then its stdout should be empty

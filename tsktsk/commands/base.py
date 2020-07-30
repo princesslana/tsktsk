@@ -9,7 +9,6 @@ import tsktsk
 from dotenv import load_dotenv
 from tsktsk.config import Config, GithubAuth
 from tsktsk.repository import FileRepository, GithubRepository, Repository
-from tsktsk.task import Task
 
 
 def find_github_auth(config: Config) -> Optional[GithubAuth]:
@@ -142,15 +141,13 @@ def list() -> None:
         click.echo(task)
 
 
-def mark_done(task: Task) -> None:
-    task.mark_done()
-    click.echo("Marked as done:", err=True)
-    click.echo(task)
-
-
 @root.command()
 @click.argument("key", nargs=1)
-def done(key: str = None, task=None) -> None:
+def done(key: str) -> None:
     "Mark a task as done. KEY specifies which task."
+
     with tasks().task(key) as t:
-        mark_done(t)
+        t.mark_done()
+
+    click.echo("Marked as done:", err=True)
+    click.echo(t, err=True)

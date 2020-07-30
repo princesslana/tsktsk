@@ -119,7 +119,6 @@ Feature: Help
            Commit changes using message from task. KEY specifies which task.
 
          Options:
-           --done  Mark task as done after commit.
            --help  Show this message and exit.
 
          """
