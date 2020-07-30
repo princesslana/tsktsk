@@ -13,15 +13,16 @@ Feature: Help
          --help         Show this message and exit.
 
        Commands:
-         doc   Create a task to improve documentation.
-         done  Mark a task as done.
-         edit  Edit an existing task.
-         fix   Create a task to fix a bug.
-         imp   Create a task to improve something existing.
-         init  Initialize a new tsktsk repository.
-         list  List tasks to be done, with highest value:effort ratio first.
-         new   Create a task to add something new.
-         tst   Create a task related to testing.
+         commit  Commit changes using message from task.
+         doc     Create a task to improve documentation.
+         done    Mark a task as done.
+         edit    Edit an existing task.
+         fix     Create a task to fix a bug.
+         imp     Create a task to improve something existing.
+         init    Initialize a new tsktsk repository.
+         list    List tasks to be done, with highest value:effort ratio first.
+         new     Create a task to add something new.
+         tst     Create a task related to testing.
 
        """
 
@@ -108,3 +109,17 @@ Feature: Help
 
          """
 
+    Scenario: Help for commit command
+      When I run tsktsk commit --help
+      Then its exit code should be 0
+       And its stdout should be
+         """
+         Usage: tsktsk commit [OPTIONS] KEY
+
+           Commit changes using message from task. KEY specifies which task.
+
+         Options:
+           --done  Mark task as done after commit.
+           --help  Show this message and exit.
+
+         """
