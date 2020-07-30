@@ -2,6 +2,7 @@ import difflib
 import re
 import shlex
 import subprocess
+import tempfile
 from pathlib import Path
 
 
@@ -19,6 +20,23 @@ def run(ctx, command):
     ctx.exit_code = result.returncode
 
     ctx.output = {"stdout": result.stdout, "stderr": result.stderr}
+
+
+@given("I have a git repository")
+def create_repository(ctx):
+    ctx.execute_steps(
+        """
+        Given I have run git init
+          And I have run git config user.email "user@email.com"
+          And I have run git config user.name "User Name"
+        """
+    )
+
+
+@given("I have added a file to staging")
+def add_file_to_staging(ctx):
+    temp_file = tempfile.NamedTemporaryFile(dir=ctx.working_directory)
+    ctx.execute_steps(f"Given I have run git add {temp_file.name}")
 
 
 @then("its exit code should be {expected:d}")
