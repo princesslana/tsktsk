@@ -12,5 +12,7 @@ def cli():
 def bot():
     smalld = SmallD()
 
-    with SmallDCliRunner(smalld, root, prefix=""):
+    create_message = lambda msg: {"content": f"```\n{msg}\n```"}
+
+    with SmallDCliRunner(smalld, root, create_message=create_message):
         smalld.run()
