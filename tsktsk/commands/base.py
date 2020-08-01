@@ -27,6 +27,22 @@ def find_github_auth(config: Config) -> Optional[GithubAuth]:
         return config.single_github_auth
 
 
+def find_github_repository(config: Config) -> Optional[str]:
+    conversation = smalld_click.get_conversation()
+    if conversation:
+        channel = next(
+            (
+                name
+                for name, channel_id in config.discord_channels.items()
+                if channel_id == conversation.channel_id
+            ),
+            None,
+        )
+        return config.github_repositories.get(channel, config.single_github_repository)
+    else:
+        return config.single_github_repository
+
+
 @click.group("tsktsk")
 @click.version_option(version=tsktsk.__version__, message="%(version)s")
 @click.option("--github", default=None, help="Manage issues in a github repository.")
@@ -40,10 +56,9 @@ def root(github: Optional[str]) -> None:
 
     tasks = FileRepository(Path(".tsktsk"))
 
-    if config.single_github_repository:
-        tasks = GithubRepository(
-            config.single_github_repository, find_github_auth(config)
-        )
+    github_repository = find_github_repository(config)
+    if github_repository:
+        tasks = GithubRepository(github_repository, find_github_auth(config))
 
     click.get_current_context().obj = tasks
 
