@@ -13,7 +13,7 @@ pyyaml==5.3.1             # via -r requirements.in
 requests==2.24.0          # via -r requirements.in, smalld
 six==1.15.0               # via websocket-client
 smalld-click==0.2.1       # via -r requirements.in
-smalld==0.1.5             # via -r requirements.in, smalld-click
+smalld==0.1.7             # via -r requirements.in, smalld-click
 typing-extensions==3.7.4.2  # via -r requirements.in
 urllib3==1.25.9           # via requests
 websocket-client==0.57.0  # via smalld
