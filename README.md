@@ -172,3 +172,5 @@ Reach out to the [Discord Projects Hub](https://discord.gg/3aTVQtz) on Discord a
 
 Thanks to [Ahmad Awais](https://github.com/ahmadawais) for [Emoji-Log](https://github.com/ahmadawais/Emoji-Log), which is from where we take the task categories and emojis.
 
+Icons made by [Freepik](http://www.freepik.com/) from [www.flaticon.com](https://www.flaticon.com/)
+
