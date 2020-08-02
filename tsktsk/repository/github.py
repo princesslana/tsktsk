@@ -64,8 +64,7 @@ def task_to_json(task: GithubTask) -> JsonObject:
     }
 
     labels = [l for l in [VALUE[task.value], EFFORT[task.effort]] if l]
-    if labels:
-        json["labels"] = sorted(labels + (task.additional_labels or []))
+    json["labels"] = sorted(labels + (task.additional_labels or []))
 
     return json
 
@@ -110,7 +109,7 @@ class GithubRepository:
         after = task_to_json(task)
 
         changes = {
-            k: after[k] for k, _ in after.items() if not before.get(k, None) == after[k]
+            k: after[k] for k, _ in after.items() if before.get(k, None) != after[k]
         }
 
         if changes:
