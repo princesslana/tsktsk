@@ -46,6 +46,11 @@ def task_from_json(issue: JsonObject) -> GithubTask:
     effort = next((k for k, v in EFFORT.items() if v in labels), EFFORT_DEFAULT)
 
     closed_at = issue["closed_at"]
+    done = (
+        datetime.strptime(closed_at, "%Y-%m-%dT%H:%M:%SZ").strftime("%Y%m%d")
+        if closed_at
+        else None
+    )
 
     task = GithubTask(
         key=issue["number"],
@@ -56,7 +61,7 @@ def task_from_json(issue: JsonObject) -> GithubTask:
         additional_labels=sorted(
             l for l in labels if l not in VALUE.values() and l not in EFFORT.values()
         ),
-        done=datetime.strptime(closed_at, "%Y-%m-%dT%H:%M:%SZ") if closed_at else None,
+        done=done,
     )
     return task
 
