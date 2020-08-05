@@ -9,6 +9,7 @@ import tsktsk
 from dotenv import load_dotenv
 from tsktsk.config import Config, GithubAuth
 from tsktsk.repository import FileRepository, GithubRepository, Repository
+from tsktsk.task import TaskError
 
 
 def find_github_auth(config: Config) -> Optional[GithubAuth]:
@@ -161,8 +162,12 @@ def list() -> None:
 def done(key: str) -> None:
     "Mark a task as done. KEY specifies which task."
 
-    with tasks().task(key) as t:
-        t.mark_done()
+    try:
+        with tasks().task(key) as t:
+            t.mark_done()
+    except TaskError:
+        click.echo("Task is already done", err=True)
+        click.get_current_context().exit(1)
 
     click.echo("Marked as done:", err=True)
     click.echo(t)
@@ -173,8 +178,12 @@ def done(key: str) -> None:
 def undone(key: str) -> None:
     "Mark a task as undone. KEY specifies which task."
 
-    with tasks().task(key) as t:
-        t.mark_undone()
+    try:
+        with tasks().task(key) as t:
+            t.mark_undone()
+    except TaskError:
+        click.echo("Task is not done", err=True)
+        click.get_current_context().exit(1)
 
     click.echo("Marked as undone:", err=True)
     click.echo(t)
