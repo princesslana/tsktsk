@@ -165,4 +165,16 @@ def done(key: str) -> None:
         t.mark_done()
 
     click.echo("Marked as done:", err=True)
-    click.echo(t, err=True)
+    click.echo(t)
+
+
+@root.command()
+@click.argument("key", nargs=1)
+def undone(key: str) -> None:
+    "Mark a task as undone. KEY specifies which task."
+
+    with tasks().task(key) as t:
+        t.mark_undone()
+
+    click.echo("Marked as undone:", err=True)
+    click.echo(t)
