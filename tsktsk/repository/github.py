@@ -1,5 +1,6 @@
 import contextlib
 import dataclasses
+from datetime import datetime
 from typing import Any, Dict, Iterator, Optional
 
 import requests
@@ -44,6 +45,8 @@ def task_from_json(issue: JsonObject) -> GithubTask:
     value = next((k for k, v in VALUE.items() if v in labels), VALUE_DEFAULT)
     effort = next((k for k, v in EFFORT.items() if v in labels), EFFORT_DEFAULT)
 
+    closed_at = issue["closed_at"]
+
     task = GithubTask(
         key=issue["number"],
         message=message,
@@ -53,6 +56,7 @@ def task_from_json(issue: JsonObject) -> GithubTask:
         additional_labels=sorted(
             l for l in labels if l not in VALUE.values() and l not in EFFORT.values()
         ),
+        done=datetime.strptime(closed_at, "%Y-%m-%dT%H:%M:%SZ") if closed_at else None,
     )
     return task
 
