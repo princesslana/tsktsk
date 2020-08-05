@@ -20,6 +20,11 @@ Feature: Done
       And I have run tsktsk undone 1
      When I run tsktsk undone 1
      Then its exit code should be 1
+      And its stderr should be
+        """
+        Task is not done
+
+        """
      When I run tsktsk list
      Then its stdout should be
         """

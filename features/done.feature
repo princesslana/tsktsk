@@ -14,5 +14,10 @@ Feature: Done
       And I have run tsktsk done 1
      When I run tsktsk done 1
      Then its exit code should be 1
+      And its stderr should be
+        """
+        Task is already done
+
+        """
      When I run tsktsk list
      Then its stdout should be empty
