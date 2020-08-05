@@ -20,6 +20,10 @@ EFFORT = {"high": "E⬆", "medium": "", "low": "E⬇"}
 POINTS = {"high": 8, "medium": 5, "low": 3}
 
 
+class TaskError(Exception):
+    pass
+
+
 @dataclasses.dataclass
 class Task:
     key: str
@@ -34,9 +38,13 @@ class Task:
         return POINTS[self.value] / POINTS[self.effort]
 
     def mark_done(self) -> None:
+        if self.done:
+            raise TaskError("task is already done")
         self.done = datetime.now().strftime("%Y%m%d")
 
     def mark_undone(self) -> None:
+        if not self.done:
+            raise TaskError("task is not done")
         self.done = None
 
     def __str__(self) -> str:
