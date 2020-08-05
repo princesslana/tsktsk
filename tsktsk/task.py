@@ -36,6 +36,9 @@ class Task:
     def mark_done(self) -> None:
         self.done = datetime.now().strftime("%Y%m%d")
 
+    def mark_undone(self) -> None:
+        self.done = None
+
     def __str__(self) -> str:
         # 50 chars is the recommended length of a git commit summary
         msg = textwrap.shorten(self.message, width=50)

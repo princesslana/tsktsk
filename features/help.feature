@@ -23,6 +23,7 @@ Feature: Help
          list    List tasks to be done, with highest value:effort ratio first.
          new     Create a task to add something new.
          tst     Create a task related to testing.
+         undone  Mark a task as undone.
 
        """
 
@@ -57,6 +58,20 @@ Feature: Help
          Usage: tsktsk done [OPTIONS] KEY
 
            Mark a task as done. KEY specifies which task.
+
+         Options:
+           --help  Show this message and exit.
+
+         """
+
+    Scenario: Help for undone command
+      When I run tsktsk undone --help
+      Then its exit code should be 0
+       And its stdout should be
+         """
+         Usage: tsktsk undone [OPTIONS] KEY
+
+           Mark a task as undone. KEY specifies which task.
 
          Options:
            --help  Show this message and exit.
