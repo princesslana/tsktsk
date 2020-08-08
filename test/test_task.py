@@ -25,11 +25,6 @@ def task(draw):
 
 
 @hypothesis.given(task=task())
-def test_repr_inverts_eval(task):
-    assert eval(repr(task)) == task
-
-
-@hypothesis.given(task=task())
 def test_str_contains_task_info(task):
     output = str(task)
     assert task.key in output

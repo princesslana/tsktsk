@@ -1,23 +1,51 @@
 import contextlib
-import dataclasses
 from pathlib import Path
 from typing import Any, Dict, Iterator
 
 import yaml
-from tsktsk.task import Task
+from tsktsk.task import Category, Effort, Task, Value
 
 YamlDict = Dict[str, Any]
+
+
+def task_from_yaml(values: YamlDict) -> Task:
+    category = values.get("category")
+    if category:
+        values["category"] = Category.__members__[category.upper()]
+
+    value = values.get("value")
+    if value:
+        values["value"] = Value.__members__[value.upper()]
+
+    effort = values.get("effort")
+    if effort:
+        values["effort"] = Effort.__members__[effort.upper()]
+
+    return Task(**values)
+
+
+def task_to_yaml(task: Task) -> YamlDict:
+    return dict(
+        key=task.key,
+        message=task.message,
+        category=task.category.name,
+        effort=task.effort.name.lower(),
+        value=task.value.name.lower(),
+        done=task.done,
+    )
 
 
 class FileRepository:
     def __init__(self, path: Path):
         self.path = path
 
-    def add(self, category: str, value: str, effort: str, message: str) -> Task:
+    def add(
+        self, category: Category, value: Value, effort: Effort, message: str
+    ) -> Task:
         with self.tasks() as tasks:
             key = str(len(tasks) + 1)
             task = Task(key, message, category, value, effort)
-            tasks[key] = dataclasses.asdict(task)
+            tasks[key] = task_to_yaml(task)
 
         return task
 
@@ -37,12 +65,12 @@ class FileRepository:
     @contextlib.contextmanager
     def task(self, key: str) -> Iterator[Task]:
         with self.tasks() as tasks:
-            task = Task(**tasks[key])
+            task = task_from_yaml(tasks[key])
             yield task
-            tasks[key] = dataclasses.asdict(task)
+            tasks[key] = task_to_yaml(task)
 
     def __iter__(self) -> Iterator[Task]:
         with self.tasks() as tasks:
-            all_tasks = (Task(**value) for value in tasks.values())
+            all_tasks = (task_from_yaml(value) for value in tasks.values())
 
         return (t for t in all_tasks if not t.done)

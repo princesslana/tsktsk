@@ -88,7 +88,7 @@ Feature: Help
            Edit an existing task. KEY specifies which task.
 
          Options:
-           --category [NEW|IMP|FIX|DOC|TST]
+           --category [new|imp|fix|doc|tst]
                                            Category of this task.
            --value [high|medium|low]       Value gained by completing this task.
            --effort [high|medium|low]      Effort required to complete this task.
