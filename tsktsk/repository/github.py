@@ -5,15 +5,7 @@ from typing import Any, Dict, Iterator, Optional
 
 import requests
 from tsktsk.config import GithubAuth
-from tsktsk.task import (
-    CATEGORY,
-    CATEGORY_DEFAULT,
-    EFFORT,
-    EFFORT_DEFAULT,
-    VALUE,
-    VALUE_DEFAULT,
-    Task,
-)
+from tsktsk.task import Category, Effort, Task, Value
 
 JsonObject = Dict[str, Any]
 
@@ -35,15 +27,20 @@ def task_from_json(issue: JsonObject) -> GithubTask:
     if ":" in title:
         prefix, message = title.split(":", maxsplit=1)
 
-        category = next((c for c in CATEGORY if c in prefix), CATEGORY_DEFAULT)
+        category = next((c for c in Category if c.name in prefix), Category.DEFAULT)
     else:
-        category = CATEGORY_DEFAULT
+        category = Category.DEFAULT
         message = title
 
     labels = sorted(label["name"] for label in issue["labels"])
 
-    value = next((k for k, v in VALUE.items() if v in labels), VALUE_DEFAULT)
-    effort = next((k for k, v in EFFORT.items() if v in labels), EFFORT_DEFAULT)
+    value = next((v for v in Value if v.value in labels), Value.DEFAULT)
+    effort = next((e for e in Effort if e.value in labels), Effort.DEFAULT)
+    additional_labels = sorted(
+        l
+        for l in labels
+        if l not in (v.value for v in Value) and l not in (e.value for e in Effort)
+    )
 
     closed_at = issue["closed_at"]
     done = (
@@ -52,27 +49,24 @@ def task_from_json(issue: JsonObject) -> GithubTask:
         else None
     )
 
-    task = GithubTask(
+    return GithubTask(
         key=issue["number"],
         message=message,
         category=category,
         effort=effort,
         value=value,
-        additional_labels=sorted(
-            l for l in labels if l not in VALUE.values() and l not in EFFORT.values()
-        ),
+        additional_labels=additional_labels,
         done=done,
     )
-    return task
 
 
 def task_to_json(task: GithubTask) -> JsonObject:
     json = {
         "state": "closed" if task.done else "open",
-        "title": f"{CATEGORY[task.category]}: {task.message}",
+        "title": f"{task.category.value}: {task.message}",
     }
 
-    labels = [l for l in [VALUE[task.value], EFFORT[task.effort]] if l]
+    labels = [l.value for l in (task.value, task.effort) if l.value]
     json["labels"] = sorted(labels + (task.additional_labels or []))
 
     return json
@@ -88,10 +82,12 @@ class GithubRepository:
         if auth:
             self.http.auth = dataclasses.astuple(auth)
 
-    def add(self, category: str, value: str, effort: str, message: str) -> Task:
-        json = {"title": f"{CATEGORY[category]}: {message}"}
+    def add(
+        self, category: Category, value: Value, effort: Effort, message: str
+    ) -> Task:
+        json = {"title": f"{category.value}: {message}"}
 
-        labels = [l for l in [VALUE[value], EFFORT[effort]] if l]
+        labels = [l.value for l in (value, effort) if l.value]
         if labels:
             json["labels"] = labels
 

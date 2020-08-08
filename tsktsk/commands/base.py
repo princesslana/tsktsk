@@ -1,6 +1,7 @@
 import os
+from enum import Enum
 from pathlib import Path
-from typing import Any, Callable, Optional
+from typing import Any, Callable, Optional, Type, TypeVar
 
 import click
 
@@ -9,7 +10,7 @@ import tsktsk
 from dotenv import load_dotenv
 from tsktsk.config import Config, GithubAuth
 from tsktsk.repository import FileRepository, GithubRepository, Repository
-from tsktsk.task import TaskError
+from tsktsk.task import Category, Effort, TaskError, Value
 
 
 def find_github_auth(config: Config) -> Optional[GithubAuth]:
@@ -68,10 +69,27 @@ def tasks() -> Repository:
     return click.get_current_context().obj
 
 
-estimate = click.Choice(["high", "medium", "low"], case_sensitive=False)
+F = TypeVar("F", bound=Callable[..., Any])
 
 
-def task_add(category: str, help: str) -> Callable[..., None]:
+def enum_option(
+    enum_type: Type[Enum], *param_decls: str, default: Optional[Enum] = None, **kwargs
+) -> Callable[[F], F]:
+    def callback(ctx, param, value):
+        return enum_type.__members__[value.upper()] if isinstance(value, str) else value
+
+    if default:
+        kwargs["default"] = default.name
+
+    return click.option(
+        *param_decls,
+        type=click.Choice([e.name.lower() for e in enum_type], case_sensitive=False),
+        callback=callback,
+        **kwargs,
+    )
+
+
+def task_add(category: Category, help: str) -> Callable[..., None]:
     long_help = f"""
         {help}
 
@@ -83,17 +101,17 @@ def task_add(category: str, help: str) -> Callable[..., None]:
         specified, it defaults to medium/medium.
         """
 
-    @root.command(category.lower(), help=long_help)
-    @click.option(
+    @root.command(category.name.lower(), help=long_help)
+    @enum_option(
+        Value,
         "--value",
-        type=estimate,
-        default="medium",
+        default=Value.DEFAULT,
         help="Value gained by completing this task.",
     )
-    @click.option(
+    @enum_option(
+        Effort,
         "--effort",
-        type=estimate,
-        default="medium",
+        default=Effort.DEFAULT,
         help="Effort required to complete this task.",
     )
     @click.argument("message", nargs=-1, required=True)
@@ -103,31 +121,27 @@ def task_add(category: str, help: str) -> Callable[..., None]:
     return f
 
 
-new = task_add("NEW", "Create a task to add something new.")
-imp = task_add("IMP", "Create a task to improve something existing.")
-fix = task_add("FIX", "Create a task to fix a bug.")
-doc = task_add("DOC", "Create a task to improve documentation.")
-tst = task_add("TST", "Create a task related to testing.")
+new = task_add(Category.NEW, "Create a task to add something new.")
+imp = task_add(Category.IMP, "Create a task to improve something existing.")
+fix = task_add(Category.FIX, "Create a task to fix a bug.")
+doc = task_add(Category.DOC, "Create a task to improve documentation.")
+tst = task_add(Category.TST, "Create a task related to testing.")
 
 
-def add(category: str, value: str, effort: str, message: str) -> None:
+def add(category: Category, value: Value, effort: Effort, message: str) -> None:
     click.echo(tasks().add(category, value, effort, " ".join(message)))
 
 
 @root.command()
-@click.option(
-    "--category",
-    type=click.Choice(["NEW", "IMP", "FIX", "DOC", "TST"], case_sensitive=False),
-    help="Category of this task.",
-)
-@click.option("--value", type=estimate, help="Value gained by completing this task.")
-@click.option("--effort", type=estimate, help="Effort required to complete this task.")
+@enum_option(Category, "--category", help="Category of this task.")
+@enum_option(Value, "--value", help="Value gained by completing this task.")
+@enum_option(Effort, "--effort", help="Effort required to complete this task.")
 @click.argument("key", nargs=1)
 @click.argument("message", nargs=-1)
 def edit(
-    category: Optional[str],
-    value: Optional[str],
-    effort: Optional[str],
+    category: Optional[Category],
+    value: Optional[Value],
+    effort: Optional[Effort],
     key: Optional[str],
     message: Optional[str],
 ) -> None:

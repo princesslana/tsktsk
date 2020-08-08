@@ -3,12 +3,14 @@ from typing import Callable, ContextManager, Iterable
 
 from tsktsk.repository.file import FileRepository  # noqa
 from tsktsk.repository.github import GithubRepository  # noqa
-from tsktsk.task import Task
+from tsktsk.task import Category, Effort, Task, Value
 from typing_extensions import Protocol
 
 
 class Repository(Iterable[Task], Protocol):
-    def add(self, cateogry: str, value: str, effort: str, message: str) -> Task:
+    def add(
+        self, cateogry: Category, value: Value, effort: Effort, message: str
+    ) -> Task:
         ...
 
     # this is more complicated than we'd like because of the typing of @contextlib.contextmanager

@@ -1,23 +1,37 @@
 import dataclasses
 import textwrap
 from datetime import datetime
+from enum import Enum
 from typing import Optional
 
-CATEGORY_DEFAULT = "NEW"
-VALUE_DEFAULT = "medium"
-EFFORT_DEFAULT = "medium"
 
-CATEGORY = {
-    "NEW": "📦 NEW",
-    "IMP": "👌 IMP",
-    "FIX": "🐛 FIX",
-    "DOC": "📖 DOC",
-    "TST": "✅ TST",
-}
+class Category(Enum):
+    NEW = "📦 NEW"
+    IMP = "👌 IMP"
+    FIX = "🐛 FIX"
+    DOC = "📖 DOC"
+    TST = "✅ TST"
 
-VALUE = {"high": "V⬆", "medium": "", "low": "V⬇"}
-EFFORT = {"high": "E⬆", "medium": "", "low": "E⬇"}
-POINTS = {"high": 8, "medium": 5, "low": 3}
+    DEFAULT = NEW
+
+
+class Value(Enum):
+    HIGH = "V⬆"
+    MEDIUM = ""
+    LOW = "V⬇"
+
+    DEFAULT = MEDIUM
+
+
+class Effort(Enum):
+    HIGH = "E⬆"
+    MEDIUM = ""
+    LOW = "E⬇"
+
+    DEFAULT = MEDIUM
+
+
+POINTS = {"HIGH": 8, "MEDIUM": 5, "LOW": 3}
 
 
 class TaskError(Exception):
@@ -28,14 +42,14 @@ class TaskError(Exception):
 class Task:
     key: str
     message: str
-    category: str = CATEGORY_DEFAULT
-    value: str = VALUE_DEFAULT
-    effort: str = EFFORT_DEFAULT
+    category: Category = Category.DEFAULT
+    value: Value = Value.DEFAULT
+    effort: Effort = Effort.DEFAULT
     done: Optional[str] = None
 
     @property
     def roi(self) -> float:
-        return POINTS[self.value] / POINTS[self.effort]
+        return POINTS[self.value.name] / POINTS[self.effort.name]
 
     def mark_done(self) -> None:
         if self.done:
@@ -55,6 +69,6 @@ class Task:
         # key:6, space, category:6, space, message:50, space, value:2, space effort 2
         return (
             f"{self.key:>6} "
-            f"{CATEGORY[self.category]}: "
-            f"{msg:50} {VALUE[self.value]:2} {EFFORT[self.effort]:2}".rstrip()
+            f"{self.category.value}: "
+            f"{msg:50} {self.value.value:2} {self.effort.value:2}".rstrip()
         )

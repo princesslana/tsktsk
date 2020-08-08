@@ -4,7 +4,6 @@ import click
 
 import tsktsk.repository as repository
 from tsktsk.commands.base import root, tasks
-from tsktsk.task import CATEGORY
 
 
 @root.command()
@@ -25,7 +24,7 @@ def commit(key: str) -> None:
 
     with tasks().task(key) as t:
         output = subprocess.run(
-            ["git", "commit", "-m", f"{CATEGORY[t.category]}: {t.message}"],
+            ["git", "commit", "-m", f"{t.category.value}: {t.message}"],
             text=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
