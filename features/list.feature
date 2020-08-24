@@ -34,7 +34,7 @@ Feature: List
      Then its exit code should be 0
       And its stderr should be
         """
-        No tasks yet
+        No tasks
 
         """
 

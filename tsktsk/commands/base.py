@@ -170,7 +170,7 @@ def list() -> None:
     tasks_list = sorted(tasks(), key=lambda t: (-t.roi, t.key))
 
     if not tasks_list:
-        click.echo("No tasks yet", err=True)
+        click.echo("No tasks", err=True)
         click.get_current_context().exit(0)
 
     for task in tasks_list:
