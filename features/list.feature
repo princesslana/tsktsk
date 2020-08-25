@@ -28,3 +28,13 @@ Feature: List
 
         """
 
+  Scenario: when tasks list is empty
+    Given I have run tsktsk init
+     When I run tsktsk list
+     Then its exit code should be 0
+      And its stderr should be
+        """
+        No tasks
+
+        """
+
