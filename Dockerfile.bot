@@ -3,7 +3,9 @@ FROM python:3.8
 COPY requirements.txt .
 RUN pip install --no-cache-dir -rrequirements.txt
 
-COPY . /var/src/
-RUN pip install /var/src/.
+WORKDIR /var/src/
+
+COPY . .
+RUN pip install .
 
 CMD tsktsk-bot
