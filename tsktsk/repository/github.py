@@ -54,10 +54,10 @@ def task_from_json(issue: JsonObject) -> GithubTask:
         dependencies = body.partition("\n")[0].lstrip("dependencies: ").split(", ")
         dependencies = set(dep.lstrip("#") for dep in dependencies)
     else:
-        dependencies = {}
+        dependencies = set()
 
     return GithubTask(
-        key=issue["number"],
+        key=str(issue["number"]),
         message=message,
         category=category,
         effort=effort,
@@ -113,7 +113,7 @@ class GithubRepository:
         result = self.http.post(api(f"/repos/{self.repo}/issues"), json=json).json()
 
         return Task(
-            key=result["number"],
+            key=str(result["number"]),
             category=category,
             message=message,
             effort=effort,
