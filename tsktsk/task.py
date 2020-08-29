@@ -2,7 +2,7 @@ import dataclasses
 import textwrap
 from datetime import datetime
 from enum import Enum
-from typing import Optional
+from typing import Optional, Set
 
 
 class Category(Enum):
@@ -45,6 +45,7 @@ class Task:
     category: Category = Category.DEFAULT
     value: Value = Value.DEFAULT
     effort: Effort = Effort.DEFAULT
+    dependencies: Set[str] = dataclasses.field(default_factory=set)
     done: Optional[str] = None
 
     @property
@@ -61,14 +62,36 @@ class Task:
             raise TaskError("task is not done")
         self.done = None
 
+    def add_dependency(self, dependency: "Task"):
+        if dependency.key == self.key:
+            raise TaskError("task cannot be dependent on itself")
+        self.dependencies.add(dependency.key)
+
+    def remove_dependency(self, dependency: "Task"):
+        try:
+            self.dependencies.remove(dependency.key)
+        except KeyError:
+            pass
+
     def __str__(self) -> str:
         # 50 chars is the recommended length of a git commit summary
         msg = textwrap.shorten(self.message, width=50)
 
         # This should be under 80 chars wide, currently 70
         # key:6, space, category:6, space, message:50, space, value:2, space effort 2
-        return (
+        header = (
             f"{self.key:>6} "
             f"{self.category.value}: "
             f"{msg:50} {self.value.value:2} {self.effort.value:2}".rstrip()
         )
+
+        deps = ""
+        if self.dependencies:
+            deps = ", ".join(sorted(self.dependencies, key=int))
+            # Aligned to the start of the category name and wrapped to 80 chars wide
+            first, *rest = textwrap.wrap(deps, width=80 - 13)
+            first = f"\n{'🔗 ':>12}{first}"
+            second = textwrap.indent("\n".join(rest), " " * 13)
+            deps = "\n".join((first, second)).rstrip()
+
+        return "".join([header, deps])

@@ -1,7 +1,7 @@
 import contextlib
 import dataclasses
 from datetime import datetime
-from typing import Any, Dict, Iterator, Optional
+from typing import Any, Dict, Iterator, Optional, Set
 
 import requests
 from tsktsk.config import GithubAuth
@@ -49,6 +49,13 @@ def task_from_json(issue: JsonObject) -> GithubTask:
         else None
     )
 
+    body = issue["body"] or ""
+    if body:
+        dependencies = body.partition("\n")[0].lstrip("dependencies: ").split(", ")
+        dependencies = set(dep.lstrip("#") for dep in dependencies)
+    else:
+        dependencies = {}
+
     return GithubTask(
         key=issue["number"],
         message=message,
@@ -56,6 +63,7 @@ def task_from_json(issue: JsonObject) -> GithubTask:
         effort=effort,
         value=value,
         additional_labels=additional_labels,
+        dependencies=dependencies,
         done=done,
     )
 
@@ -68,6 +76,12 @@ def task_to_json(task: GithubTask) -> JsonObject:
 
     labels = [l.value for l in (task.value, task.effort) if l.value]
     json["labels"] = sorted(labels + (task.additional_labels or []))
+
+    if task.dependencies:
+        dependencies = ", ".join(
+            f"#{dep}" for dep in sorted(task.dependencies, key=int)
+        )
+        json["body"] = f"dependencies: {dependencies}"
 
     return json
 
@@ -83,7 +97,12 @@ class GithubRepository:
             self.http.auth = dataclasses.astuple(auth)
 
     def add(
-        self, category: Category, value: Value, effort: Effort, message: str
+        self,
+        category: Category,
+        value: Value,
+        effort: Effort,
+        message: str,
+        dependencies: Set[str],
     ) -> Task:
         json = {"title": f"{category.value}: {message}"}
 

@@ -1,7 +1,7 @@
 import os
 from enum import Enum
 from pathlib import Path
-from typing import Any, Callable, Optional, Type, TypeVar
+from typing import Any, Callable, Iterable, NoReturn, Optional, Set, Type, TypeVar
 
 import click
 
@@ -10,7 +10,7 @@ import tsktsk
 from dotenv import load_dotenv
 from tsktsk.config import Config, GithubAuth
 from tsktsk.repository import FileRepository, GithubRepository, Repository
-from tsktsk.task import Category, Effort, TaskError, Value
+from tsktsk.task import Category, Effort, Task, TaskError, Value
 
 
 def find_github_auth(config: Config) -> Optional[GithubAuth]:
@@ -69,6 +69,11 @@ def tasks() -> Repository:
     return click.get_current_context().obj
 
 
+def fail(message: str) -> NoReturn:
+    click.echo(message, err=True)
+    click.get_current_context().exit(1)
+
+
 F = TypeVar("F", bound=Callable[..., Any])
 
 
@@ -114,6 +119,7 @@ def task_add(category: Category, help: str) -> Callable[..., None]:
         default=Effort.DEFAULT,
         help="Effort required to complete this task.",
     )
+    @click.option("--dep", multiple=True, help="Add dependency for this task.")
     @click.argument("message", nargs=-1, required=True)
     def f(*args: Any, **kwargs: Any) -> None:
         add(category, *args, **kwargs)
@@ -128,20 +134,26 @@ doc = task_add(Category.DOC, "Create a task to improve documentation.")
 tst = task_add(Category.TST, "Create a task related to testing.")
 
 
-def add(category: Category, value: Value, effort: Effort, message: str) -> None:
-    click.echo(tasks().add(category, value, effort, " ".join(message)))
+def add(
+    category: Category, value: Value, effort: Effort, dep: Iterable[str], message: str
+) -> None:
+    click.echo(tasks().add(category, value, effort, " ".join(message), set(dep)))
 
 
 @root.command()
 @enum_option(Category, "--category", help="Category of this task.")
 @enum_option(Value, "--value", help="Value gained by completing this task.")
 @enum_option(Effort, "--effort", help="Effort required to complete this task.")
+@click.option("--dep", multiple=True, help="Add dependency to this task.")
+@click.option("--rm-dep", multiple=True, help="Remove dependency from this task.")
 @click.argument("key", nargs=1)
 @click.argument("message", nargs=-1)
 def edit(
     category: Optional[Category],
     value: Optional[Value],
     effort: Optional[Effort],
+    dep: Iterable[str],
+    rm_dep: Iterable[str],
     key: Optional[str],
     message: Optional[str],
 ) -> None:
@@ -160,7 +172,29 @@ def edit(
         if message:
             t.message = " ".join(message)
 
+        if dep or rm_dep:
+            edit_dependencies(t, add=set(dep), remove=set(rm_dep))
+
     click.echo(t)
+
+
+def edit_dependencies(task: Task, add: Set[str], remove: Set[str]):
+    if not add.isdisjoint(remove):
+        fail("Dependency cannot be added and removed simultaneously")
+
+    for dependency in tasks():
+        if dependency.key in add:
+            try:
+                task.add_dependency(dependency)
+            except TaskError:
+                fail("Task cannot be dependent on itself")
+            add.remove(dependency.key)
+        elif dependency.key in remove:
+            task.remove_dependency(dependency)
+            remove.remove(dependency.key)
+
+    if add or remove:
+        fail(f"Nonexistent task(s): {', '.join(add | remove)}")
 
 
 @root.command()
@@ -186,8 +220,7 @@ def done(key: str) -> None:
         with tasks().task(key) as t:
             t.mark_done()
     except TaskError:
-        click.echo("Task is already done", err=True)
-        click.get_current_context().exit(1)
+        fail("Task is already done")
 
     click.echo("Marked as done:", err=True)
     click.echo(t)
@@ -202,8 +235,7 @@ def undone(key: str) -> None:
         with tasks().task(key) as t:
             t.mark_undone()
     except TaskError:
-        click.echo("Task is not done", err=True)
-        click.get_current_context().exit(1)
+        fail("Task is not done")
 
     click.echo("Marked as undone:", err=True)
     click.echo(t)
