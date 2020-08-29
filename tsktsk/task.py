@@ -1,8 +1,10 @@
 import dataclasses
+import heapq
 import textwrap
+from collections import namedtuple
 from datetime import datetime
 from enum import Enum
-from typing import Optional, Set
+from typing import Dict, Iterable, Optional, Set
 
 
 class Category(Enum):
@@ -48,10 +50,6 @@ class Task:
     dependencies: Set[str] = dataclasses.field(default_factory=set)
     done: Optional[str] = None
 
-    @property
-    def roi(self) -> float:
-        return POINTS[self.value.name] / POINTS[self.effort.name]
-
     def mark_done(self) -> None:
         if self.done:
             raise TaskError("task is already done")
@@ -95,3 +93,59 @@ class Task:
             deps = "\n".join((first, second)).rstrip()
 
         return "".join([header, deps])
+
+
+GraphNode = namedtuple("GraphNode", "key dependencies dependents")
+
+
+def max_sum_roi(tasks: Dict[str, Task], node: GraphNode):
+    task = tasks[node.key]
+    values_sum = sum(
+        (POINTS[tasks[tk].value.name] for tk in node.dependents),
+        POINTS[task.value.name],
+    )
+    efforts_sum = sum(
+        (POINTS[tasks[tk].effort.name] for tk in node.dependents),
+        POINTS[task.effort.name],
+    )
+    task_roi = POINTS[task.value.name] / POINTS[task.effort.name]
+    return max(values_sum / efforts_sum, task_roi)
+
+
+def sort_by_roi(all_tasks: Iterable[Task]):
+    tasks = {task.key: task for task in all_tasks}
+
+    nodes = {}
+    independent_tasks = []
+    default = lambda k: GraphNode(k, [], [])
+    for task in tasks.values():
+        if not task.dependencies:
+            independent_tasks.append(task.key)
+            nodes.setdefault(task.key, default(task.key))
+        else:
+            node = nodes.setdefault(task.key, default(task.key))
+            node.dependencies.extend(task.dependencies)
+            for dependency in task.dependencies:
+                node = nodes.setdefault(dependency, default(dependency))
+                node.dependents.append(task.key)
+
+    available_tasks = [
+        (-max_sum_roi(tasks, nodes[key]), key) for key in independent_tasks
+    ]
+    heapq.heapify(available_tasks)
+
+    output = []
+    while available_tasks:
+        _, key = heapq.heappop(available_tasks)
+        output.append(tasks[key])
+        dependents = nodes[key].dependents
+        for dep_key in dependents:
+            dependencies = nodes[dep_key].dependencies
+            dependencies.remove(key)
+            if not dependencies:
+                dependent = nodes[dep_key]
+                heapq.heappush(
+                    available_tasks, (-max_sum_roi(tasks, dependent), dependent.key)
+                )
+
+    return output

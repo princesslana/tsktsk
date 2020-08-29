@@ -10,7 +10,7 @@ import tsktsk
 from dotenv import load_dotenv
 from tsktsk.config import Config, GithubAuth
 from tsktsk.repository import FileRepository, GithubRepository, Repository
-from tsktsk.task import Category, Effort, Task, TaskError, Value
+from tsktsk.task import Category, Effort, Task, TaskError, Value, sort_by_roi
 
 
 def find_github_auth(config: Config) -> Optional[GithubAuth]:
@@ -201,13 +201,13 @@ def edit_dependencies(task: Task, add: Set[str], remove: Set[str]):
 def list() -> None:
     "List tasks to be done, with highest value:effort ratio first."
 
-    tasks_list = sorted(tasks(), key=lambda t: (-t.roi, t.key))
+    sorted_tasks = sort_by_roi(tasks())
 
-    if not tasks_list:
+    if not sorted_tasks:
         click.echo("No tasks", err=True)
-        click.get_current_context().exit(0)
+        return
 
-    for task in tasks_list:
+    for task in sorted_tasks:
         click.echo(task)
 
 
