@@ -53,7 +53,7 @@ class FileRepository:
         with self.tasks() as tasks:
             missing = [dep for dep in dependencies if dep not in tasks]
             if missing:
-                raise ValueError(f"Nonexistent task(s): {', '.join(missing)}")
+                raise ValueError(*missing)
 
             key = str(len(tasks) + 1)
             task = Task(key, message, category, value, effort, dependencies)

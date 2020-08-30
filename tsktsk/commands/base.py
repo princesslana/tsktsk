@@ -137,7 +137,10 @@ tst = task_add(Category.TST, "Create a task related to testing.")
 def add(
     category: Category, value: Value, effort: Effort, dep: Iterable[str], message: str
 ) -> None:
-    click.echo(tasks().add(category, value, effort, " ".join(message), set(dep)))
+    try:
+        click.echo(tasks().add(category, value, effort, " ".join(message), set(dep)))
+    except ValueError as e:
+        fail(f"Nonexistent task(s): {', '.join(e.args)}")
 
 
 @root.command()
