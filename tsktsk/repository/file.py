@@ -51,7 +51,7 @@ class FileRepository:
         dependencies: Set[str],
     ) -> Task:
         with self.tasks() as tasks:
-            missing = [dep for dep in dependencies if dep not in tasks]
+            missing = dependencies.difference(tasks)
             if missing:
                 raise ValueError(*missing)
 

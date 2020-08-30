@@ -77,14 +77,13 @@ def task_to_json(task: GithubTask) -> JsonObject:
     labels = [l.value for l in (task.value, task.effort) if l.value]
     json["labels"] = sorted(labels + (task.additional_labels or []))
 
-    json["body"] = create_issue_body(task.dependencies)
+    if task.dependencies:
+        json["body"] = create_issue_body(task.dependencies)
 
     return json
 
 
-def create_issue_body(dependencies: Set[str]) -> Optional[str]:
-    if not dependencies:
-        return None
+def create_issue_body(dependencies: Set[str]) -> str:
     deps = ", ".join(f"#{dep}" for dep in sorted(dependencies, key=int))
     return f"dependencies: {deps}"
 
@@ -113,7 +112,14 @@ class GithubRepository:
         if labels:
             json["labels"] = labels
 
-        json["body"] = create_issue_body(dependencies)
+        if dependencies:
+            missing = dependencies.difference(
+                str(issue["number"]) for issue in self.issues()
+            )
+            if missing:
+                raise ValueError(*missing)
+
+            json["body"] = create_issue_body(dependencies)
 
         result = self.http.post(api(f"/repos/{self.repo}/issues"), json=json).json()
 
@@ -145,9 +151,9 @@ class GithubRepository:
         if changes:
             self.http.patch(api(f"/repos/{self.repo}/issues/{key}"), json=changes)
 
+    def issues(self, state="all") -> Iterator[JsonObject]:
+        result = self.http.get(api(f"/repos/{self.repo}/issues?state={state}")).json()
+        return (issue for issue in result if not issue.get("pull_request"))
+
     def __iter__(self) -> Iterator[Task]:
-        result = self.http.get(api(f"/repos/{self.repo}/issues?state=open")).json()
-
-        issues = (issue for issue in result if not issue.get("pull_request"))
-
-        yield from (task_from_json(issue) for issue in issues)
+        yield from (task_from_json(issue) for issue in self.issues("open"))
