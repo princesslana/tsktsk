@@ -77,13 +77,16 @@ def task_to_json(task: GithubTask) -> JsonObject:
     labels = [l.value for l in (task.value, task.effort) if l.value]
     json["labels"] = sorted(labels + (task.additional_labels or []))
 
-    if task.dependencies:
-        dependencies = ", ".join(
-            f"#{dep}" for dep in sorted(task.dependencies, key=int)
-        )
-        json["body"] = f"dependencies: {dependencies}"
+    json["body"] = create_issue_body(task.dependencies)
 
     return json
+
+
+def create_issue_body(dependencies: Set[str]) -> Optional[str]:
+    if not dependencies:
+        return None
+    deps = ", ".join(f"#{dep}" for dep in sorted(dependencies, key=int))
+    return f"dependencies: {deps}"
 
 
 class GithubRepository:
@@ -110,6 +113,8 @@ class GithubRepository:
         if labels:
             json["labels"] = labels
 
+        json["body"] = create_issue_body(dependencies)
+
         result = self.http.post(api(f"/repos/{self.repo}/issues"), json=json).json()
 
         return Task(
@@ -118,6 +123,7 @@ class GithubRepository:
             message=message,
             effort=effort,
             value=value,
+            dependencies=dependencies,
         )
 
     @contextlib.contextmanager
