@@ -12,8 +12,8 @@ Feature: Task Dependency
 
   Scenario: when adding and removing the same dependency
     Given I have run tsktsk init
-     When I run tsktsk new First Task
-     When I run tsktsk new Second Task
+      And I have run tsktsk new First Task
+      And I have run tsktsk new Second Task
      When I run tsktsk edit 2 --dep 1 --rm-dep 1
      Then its exit code should be 1
       And its stderr should be
@@ -24,18 +24,30 @@ Feature: Task Dependency
 
   Scenario: when editing task by adding itself as a dependency
     Given I have run tsktsk init
-     When I run tsktsk new First Task
+      And I have run tsktsk new First Task
      When I run tsktsk edit 1 --dep 1
      Then its exit code should be 1
       And its stderr should be
         """
-        Task cannot be dependent on itself
+        Circular dependencies are not allowed
+
+        """
+
+  Scenario: when adding circular dependency between tasks
+    Given I have run tsktsk init
+      And I have run tsktsk new First Task
+      And I have run tsktsk new --dep 1 Second Task
+     When I run tsktsk edit 1 --dep 2
+     Then its exit code should be 1
+      And its stderr should be
+        """
+        Circular dependencies are not allowed
 
         """
 
   Scenario: when adding or removing nonexistent tasks as dependencies
     Given I have run tsktsk init
-     When I run tsktsk new First Task
+      And I have run tsktsk new First Task
      When I run tsktsk edit 1 --dep 2
      Then its exit code should be 1
       And its stderr should be
@@ -53,8 +65,8 @@ Feature: Task Dependency
 
   Scenario: removing dependency between independent tasks
     Given I have run tsktsk init
-     When I run tsktsk new First Task
-     When I run tsktsk new Second Task
+      And I have run tsktsk new First Task
+      And I have run tsktsk new Second Task
      When I run tsktsk edit 1 --rm-dep 2
      Then its exit code should be 0
       And its stdout should be

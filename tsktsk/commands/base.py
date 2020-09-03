@@ -190,7 +190,7 @@ def edit_dependencies(task: Task, add: Set[str], remove: Set[str]):
             try:
                 task.add_dependency(dependency)
             except TaskError:
-                fail("Task cannot be dependent on itself")
+                fail("Circular dependencies are not allowed")
             add.remove(dependency.key)
         elif dependency.key in remove:
             task.remove_dependency(dependency)

@@ -61,12 +61,12 @@ class Task:
             raise TaskError("task is not done")
         self.done = None
 
-    def add_dependency(self, dependency: "Task"):
-        if dependency.key == self.key:
-            raise TaskError("task cannot be dependent on itself")
+    def add_dependency(self, dependency: Task):
+        if self.key == dependency.key or self.key in dependency.dependencies:
+            raise TaskError("circular dependencies")
         self.dependencies.add(dependency.key)
 
-    def remove_dependency(self, dependency: "Task"):
+    def remove_dependency(self, dependency: Task):
         try:
             self.dependencies.remove(dependency.key)
         except KeyError:
