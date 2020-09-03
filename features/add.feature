@@ -60,3 +60,18 @@ Feature: Add
              5 ✅ TST: Something tested
 
         """
+
+  Scenario: when adding task with dependencies
+    Given I have run tsktsk init
+      And I have run tsktsk new Something new
+      And I have run tsktsk imp Something improved
+      And I have run tsktsk fix --dep 1 --dep 2 Something fixed
+     When I run tsktsk list
+     Then its stdout should be
+        """
+             1 📦 NEW: Something new
+             2 👌 IMP: Something improved
+             3 🐛 FIX: Something fixed
+                  🔗 1, 2
+
+        """

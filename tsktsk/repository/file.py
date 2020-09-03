@@ -1,6 +1,6 @@
 import contextlib
 from pathlib import Path
-from typing import Any, Dict, Iterator
+from typing import Any, Dict, Iterator, Set
 
 import yaml
 from tsktsk.task import Category, Effort, Task, Value
@@ -21,6 +21,8 @@ def task_from_yaml(values: YamlDict) -> Task:
     if effort:
         values["effort"] = Effort.__members__[effort.upper()]
 
+    values["dependencies"] = set(values.get("dependencies", []))
+
     return Task(**values)
 
 
@@ -32,6 +34,7 @@ def task_to_yaml(task: Task) -> YamlDict:
         effort=task.effort.name.lower(),
         value=task.value.name.lower(),
         done=task.done,
+        dependencies=list(task.dependencies),
     )
 
 
@@ -40,11 +43,20 @@ class FileRepository:
         self.path = path
 
     def add(
-        self, category: Category, value: Value, effort: Effort, message: str
+        self,
+        category: Category,
+        value: Value,
+        effort: Effort,
+        message: str,
+        dependencies: Set[str],
     ) -> Task:
         with self.tasks() as tasks:
+            missing = dependencies.difference(tasks)
+            if missing:
+                raise ValueError(*missing)
+
             key = str(len(tasks) + 1)
-            task = Task(key, message, category, value, effort)
+            task = Task(key, message, category, value, effort, dependencies)
             tasks[key] = task_to_yaml(task)
 
         return task

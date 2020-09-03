@@ -46,6 +46,7 @@ Feature: Help
          Options:
            --value [high|medium|low]   Value gained by completing this task.
            --effort [high|medium|low]  Effort required to complete this task.
+           --dep TEXT                  Add dependency for this task.
            --help                      Show this message and exit.
 
          """
@@ -92,6 +93,8 @@ Feature: Help
                                            Category of this task.
            --value [high|medium|low]       Value gained by completing this task.
            --effort [high|medium|low]      Effort required to complete this task.
+           --dep TEXT                      Add dependency to this task.
+           --rm-dep TEXT                   Remove dependency from this task.
            --help                          Show this message and exit.
 
           """

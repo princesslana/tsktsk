@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Callable, ContextManager, Iterable
+from typing import Callable, ContextManager, Iterable, List, Set
 
 from tsktsk.repository.file import FileRepository  # noqa
 from tsktsk.repository.github import GithubRepository  # noqa
@@ -9,7 +9,12 @@ from typing_extensions import Protocol
 
 class Repository(Iterable[Task], Protocol):
     def add(
-        self, cateogry: Category, value: Value, effort: Effort, message: str
+        self,
+        cateogry: Category,
+        value: Value,
+        effort: Effort,
+        message: str,
+        dependencies: Set[str],
     ) -> Task:
         ...
 
