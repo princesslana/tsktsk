@@ -127,15 +127,17 @@ def build_graph(tasks: Dict[str, Task]) -> List[GraphNode]:
             node = nodes[task.key] = GraphNode(task, [], [])
         return node
 
-    for task in tasks.values():
-        if not task.dependencies:
-            roots.append(get_node(task))
-        else:
-            node = get_node(task)
-            for dep in task.dependencies:
+    for node in map(get_node, tasks.values()):
+        for dep in node.task.dependencies:
+            try:
                 dependency_node = get_node(tasks[dep])
-                node.dependencies.append(dependency_node)
-                dependency_node.dependents.append(node)
+            except KeyError:
+                continue
+            node.dependencies.append(dependency_node)
+            dependency_node.dependents.append(node)
+
+        if not node.dependencies:
+            roots.append(node)
 
     return roots
 
