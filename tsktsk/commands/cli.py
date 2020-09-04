@@ -3,7 +3,7 @@ import subprocess
 import click
 
 import tsktsk.repository as repository
-from tsktsk.commands.base import root, tasks
+from tsktsk.commands.base import fail, root, tasks
 
 
 @root.command()
@@ -14,7 +14,7 @@ def init() -> None:
         repository.create()
         click.echo("tsktsk initialized.", err=True)
     except FileExistsError:
-        raise SystemExit("tsktsk already initialized.")
+        fail("tsktsk already initialized.")
 
 
 @root.command()
@@ -30,7 +30,5 @@ def commit(key: str) -> None:
             stderr=subprocess.STDOUT,
         )
 
-        if output.stdout:
-            click.echo(output.stdout, err=bool(output.returncode))
-        if output.returncode:
-            click.get_current_context().abort()
+        callback = fail if output.returncode else click.echo
+        callback(output.stdout)

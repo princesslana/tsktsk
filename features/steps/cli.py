@@ -1,9 +1,46 @@
 import difflib
+import io
+import os
 import re
 import shlex
 import subprocess
+import sys
 import tempfile
+from contextlib import contextmanager, redirect_stderr, redirect_stdout
 from pathlib import Path
+
+from tsktsk.__main__ import cli
+
+
+@contextmanager
+def change_execution_env(new_cwd, new_argv):
+    old_cwd = os.getcwd()
+    old_argv = sys.argv
+
+    try:
+        os.chdir(new_cwd)
+        sys.argv = new_argv
+        yield
+    finally:
+        os.chdir(old_cwd)
+        sys.argv = old_argv
+
+
+@given("I have run tsktsk {args}")
+@when("I run tsktsk {args}")
+def run(ctx, args):
+    command = ["tsktsk"] + shlex.split(args)
+    stdout = redirect_stdout(io.StringIO())
+    stderr = redirect_stderr(io.StringIO())
+    exec_env = change_execution_env(ctx.working_directory, command)
+
+    with stdout as out, stderr as err, exec_env:
+        try:
+            cli()
+        except SystemExit as e:
+            ctx.exit_code = e.code
+
+    ctx.output = {"stdout": out.getvalue(), "stderr": err.getvalue()}
 
 
 @given("I have run {command}")
