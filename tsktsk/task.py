@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import dataclasses
 import heapq
-import textwrap
-from datetime import date
+from datetime import date, timedelta
 from enum import Enum
-from typing import Dict, Iterable, List, Optional, Set
+from itertools import repeat
+from typing import Dict, Iterable, List, Optional, Set, Tuple
 
 
 class Category(Enum):
@@ -51,6 +51,14 @@ class Task:
     dependencies: Set[str] = dataclasses.field(default_factory=set)
     done: Optional[date] = None
 
+    @property
+    def effort_points(self) -> int:
+        return POINTS[self.effort.name]
+
+    @property
+    def value_points(self) -> int:
+        return POINTS[self.value.name]
+
     def mark_done(self) -> None:
         if self.done:
             raise TaskError("task is already done")
@@ -72,29 +80,6 @@ class Task:
         except KeyError:
             pass
 
-    def __str__(self) -> str:
-        # 50 chars is the recommended length of a git commit summary
-        msg = textwrap.shorten(self.message, width=50)
-
-        # This should be under 80 chars wide, currently 70
-        # key:6, space, category:6, space, message:50, space, value:2, space effort 2
-        header = (
-            f"{self.key:>6} "
-            f"{self.category.value}: "
-            f"{msg:50} {self.value.value:2} {self.effort.value:2}".rstrip()
-        )
-
-        deps = ""
-        if self.dependencies:
-            deps = ", ".join(sorted(self.dependencies, key=int))
-            # Aligned to the start of the category name and wrapped to 80 chars wide
-            first, *rest = textwrap.wrap(deps, width=80 - 13)
-            first = f"\n{'🔗 ':>12}{first}"
-            second = textwrap.indent("\n".join(rest), " " * 13)
-            deps = "\n".join((first, second)).rstrip()
-
-        return "".join([header, deps])
-
 
 @dataclasses.dataclass
 class GraphNode:
@@ -106,15 +91,12 @@ class GraphNode:
 def max_sum_roi(node: GraphNode):
     task = node.task
     values_sum = sum(
-        (POINTS[dep.task.value.name] for dep in node.dependents),
-        POINTS[task.value.name],
+        (dep.task.value_points for dep in node.dependents), task.value_points
     )
     efforts_sum = sum(
-        (POINTS[dep.task.effort.name] for dep in node.dependents),
-        POINTS[task.effort.name],
+        (dep.task.effort_points for dep in node.dependents), task.effort_points
     )
-    task_roi = POINTS[task.value.name] / POINTS[task.effort.name]
-    return max(values_sum / efforts_sum, task_roi)
+    return max(values_sum / efforts_sum, task.value_points / task.effort_points)
 
 
 def build_graph(tasks: Dict[str, Task]) -> List[GraphNode]:
@@ -161,3 +143,34 @@ def sort_tasks_by_roi(all_tasks: Iterable[Task]):
                 )
 
     return output
+
+
+def sequential_eta(repo, tasks: List[Task]) -> Iterable[Tuple[Task, Optional[date]]]:
+    velocity, remaining = estimate_velocity(repo)
+    if velocity == 0:
+        yield from zip(tasks, repeat(None))
+        return
+
+    cur_date = date.today()
+    for task in tasks:
+        remaining -= task.effort_points
+        while remaining < 0:
+            cur_date += timedelta(days=1)
+            remaining += velocity
+        yield task, cur_date
+
+
+def estimate_velocity(repo) -> Tuple[float, float]:
+    today = date.today()
+    start_date = today - timedelta(days=60)
+
+    tasks = repo.tasks_done_between(start_date, today)
+    efforts = sum(t.effort_points for t in tasks if t.done != today)
+    if efforts == 0:
+        return 0, 0
+
+    earliest_date = min(t.done for t in tasks)
+    velocity = efforts / (today - earliest_date).days
+    used = sum(t.effort_points for t in tasks if t.done == today)
+
+    return velocity, velocity - used

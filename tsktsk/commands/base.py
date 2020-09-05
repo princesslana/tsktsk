@@ -1,4 +1,6 @@
 import os
+import textwrap
+from datetime import date
 from enum import Enum
 from pathlib import Path
 from typing import Any, Callable, Iterable, NoReturn, Optional, Set, Type, TypeVar
@@ -10,7 +12,15 @@ import tsktsk
 from dotenv import load_dotenv
 from tsktsk.config import Config, GithubAuth
 from tsktsk.repository import FileRepository, GithubRepository, Repository
-from tsktsk.task import Category, Effort, Task, TaskError, Value, sort_tasks_by_roi
+from tsktsk.task import (
+    Category,
+    Effort,
+    Task,
+    TaskError,
+    Value,
+    sequential_eta,
+    sort_tasks_by_roi,
+)
 
 
 def find_github_auth(config: Config) -> Optional[GithubAuth]:
@@ -134,13 +144,40 @@ doc = task_add(Category.DOC, "Create a task to improve documentation.")
 tst = task_add(Category.TST, "Create a task related to testing.")
 
 
+def describe_task(task, completion_date: Optional[date] = None):
+    # 50 chars is the recommended length of a git commit
+    msg = textwrap.shorten(task.message, width=50)
+
+    eta_txt = f"⏰ {completion_date.strftime('%d-%m')}" if completion_date else ""
+
+    # This should be under 80 chars wide, currently 78
+    # key:6, space, category:6, space, message:50, space, value:2, space, effort:2, space, date:7
+    header = (
+        f"{task.key:>6} "
+        f"{task.category.value}: "
+        f"{msg:50} {task.value.value:2} {task.effort.value:2} {eta_txt}".rstrip()
+    )
+
+    deps = ""
+    if task.dependencies:
+        deps = ", ".join(sorted(task.dependencies, key=int))
+        # Aligned to the start of the category name and wrapped to 80 chars wide
+        first, *rest = textwrap.wrap(deps, width=80 - 13)
+        first = f"\n{'🔗':>11} {first}"
+        second = textwrap.indent("\n".join(rest), " " * 13)
+        deps = "\n".join((first, second)).rstrip()
+
+    return "".join([header, deps])
+
+
 def add(
     category: Category, value: Value, effort: Effort, dep: Iterable[str], message: str
 ) -> None:
     try:
-        click.echo(tasks().add(category, value, effort, " ".join(message), set(dep)))
+        task = tasks().add(category, value, effort, " ".join(message), set(dep))
     except ValueError as e:
         fail(f"Nonexistent task(s): {', '.join(e.args)}")
+    click.echo(describe_task(task))
 
 
 @root.command()
@@ -178,7 +215,7 @@ def edit(
         if dep or rm_dep:
             edit_dependencies(t, add=set(dep), remove=set(rm_dep))
 
-    click.echo(t)
+    click.echo(describe_task(t))
 
 
 def edit_dependencies(task: Task, add: Set[str], remove: Set[str]):
@@ -204,14 +241,15 @@ def edit_dependencies(task: Task, add: Set[str], remove: Set[str]):
 def list() -> None:
     "List tasks to be done, with highest value:effort ratio first."
 
-    sorted_tasks = sort_tasks_by_roi(tasks())
+    repo = tasks()
+    sorted_tasks = sort_tasks_by_roi(repo)
 
     if not sorted_tasks:
         click.echo("No tasks", err=True)
         return
 
-    for task in sorted_tasks:
-        click.echo(task)
+    for task, eta in sequential_eta(repo, sorted_tasks):
+        click.echo(describe_task(task, eta))
 
 
 @root.command()
@@ -226,7 +264,7 @@ def done(key: str) -> None:
         fail("Task is already done")
 
     click.echo("Marked as done:", err=True)
-    click.echo(t)
+    click.echo(describe_task(t))
 
 
 @root.command()
@@ -241,4 +279,4 @@ def undone(key: str) -> None:
         fail("Task is not done")
 
     click.echo("Marked as undone:", err=True)
-    click.echo(t)
+    click.echo(describe_task(t))
