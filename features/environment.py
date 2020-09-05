@@ -1,5 +1,21 @@
 import shutil
 import tempfile
+from unittest.mock import patch
+
+from behave import fixture, use_fixture
+
+
+@fixture
+def date_fixture(context):
+    with patch("tsktsk.services.date") as date_mock, patch(
+        "tsktsk.task.date", new=date_mock
+    ):
+        yield date_mock.today
+
+
+def before_tag(context, tag):
+    if tag == "fixtures.date":
+        context.today = use_fixture(date_fixture, context)
 
 
 def before_scenario(context, scenario):
