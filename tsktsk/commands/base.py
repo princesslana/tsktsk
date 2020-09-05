@@ -12,15 +12,8 @@ import tsktsk
 from dotenv import load_dotenv
 from tsktsk.config import Config, GithubAuth
 from tsktsk.repository import FileRepository, GithubRepository, Repository
-from tsktsk.task import (
-    Category,
-    Effort,
-    Task,
-    TaskError,
-    Value,
-    sequential_eta,
-    sort_tasks_by_roi,
-)
+from tsktsk.services import sequential_eta, sort_tasks_by_roi
+from tsktsk.task import Category, Effort, Task, TaskError, Value
 
 
 def find_github_auth(config: Config) -> Optional[GithubAuth]:
