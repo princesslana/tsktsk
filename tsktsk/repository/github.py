@@ -1,7 +1,7 @@
 import contextlib
 import dataclasses
-from datetime import date, datetime
-from typing import Any, Dict, Iterator, Optional, Set
+from datetime import date, datetime, time
+from typing import Any, Dict, Iterator, List, Optional, Set
 
 import requests
 from tsktsk.config import GithubAuth
@@ -16,6 +16,10 @@ def api(path: str) -> str:
 
 def date_from_str(value: str) -> date:
     return datetime.strptime(value, "%Y-%m-%dT%H:%M:%SZ").date()
+
+
+def date_to_str(value: date) -> str:
+    return datetime.combine(value, time()).isoformat()
 
 
 def create_issue_body(dependencies: Set[str]) -> str:
@@ -152,9 +156,16 @@ class GithubRepository:
         if changes:
             self.http.patch(api(f"/repos/{self.repo}/issues/{key}"), json=changes)
 
-    def issues(self, state="all") -> Iterator[JsonObject]:
-        result = self.http.get(api(f"/repos/{self.repo}/issues?state={state}")).json()
+    def issues(self, state="all", since: Optional[str] = None) -> Iterator[JsonObject]:
+        params = f"state={state}{'&since=' + since if since else ''}"
+        result = self.http.get(api(f"/repos/{self.repo}/issues?{params}")).json()
         return (issue for issue in result if not issue.get("pull_request"))
 
     def __iter__(self) -> Iterator[Task]:
         yield from (task_from_json(issue) for issue in self.issues("open"))
+
+    def tasks_done_between(self, start: date, end: date) -> List[Task]:
+        issues = self.issues("closed", since=date_to_str(start))
+        return [
+            task for task in map(task_from_json, issues) if start <= task.done <= end
+        ]

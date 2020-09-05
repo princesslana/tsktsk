@@ -1,7 +1,7 @@
 import contextlib
 from datetime import date, datetime
 from pathlib import Path
-from typing import Any, Dict, Iterator, Set
+from typing import Any, Dict, Iterator, List, Set
 
 import yaml
 from tsktsk.task import Category, Effort, Task, Value
@@ -99,3 +99,12 @@ class FileRepository:
             all_tasks = (task_from_yaml(value) for value in tasks.values())
 
         return (t for t in all_tasks if not t.done)
+
+    def tasks_done_between(self, start: date, end: date) -> List[Task]:
+        with self.tasks() as tasks:
+            all_tasks = (
+                task_from_yaml(t)
+                for t in tasks.values()
+                if t["done"] and start <= date_from_str(t["done"]) <= end
+            )
+        return list(all_tasks)
