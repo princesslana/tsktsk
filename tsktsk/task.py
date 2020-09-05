@@ -3,7 +3,7 @@ from __future__ import annotations
 import dataclasses
 import heapq
 import textwrap
-from datetime import datetime
+from datetime import date
 from enum import Enum
 from typing import Dict, Iterable, List, Optional, Set
 
@@ -49,12 +49,12 @@ class Task:
     value: Value = Value.DEFAULT
     effort: Effort = Effort.DEFAULT
     dependencies: Set[str] = dataclasses.field(default_factory=set)
-    done: Optional[str] = None
+    done: Optional[date] = None
 
     def mark_done(self) -> None:
         if self.done:
             raise TaskError("task is already done")
-        self.done = datetime.now().strftime("%Y%m%d")
+        self.done = date.today()
 
     def mark_undone(self) -> None:
         if not self.done:

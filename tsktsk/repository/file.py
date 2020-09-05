@@ -1,4 +1,5 @@
 import contextlib
+from datetime import date, datetime
 from pathlib import Path
 from typing import Any, Dict, Iterator, Set
 
@@ -6,6 +7,14 @@ import yaml
 from tsktsk.task import Category, Effort, Task, Value
 
 YamlDict = Dict[str, Any]
+
+
+def date_from_str(value: str) -> date:
+    return datetime.strptime(value, "%Y%m%d").date()
+
+
+def date_to_str(value: date) -> str:
+    return value.strftime("%Y%m%d")
 
 
 def task_from_yaml(values: YamlDict) -> Task:
@@ -21,6 +30,10 @@ def task_from_yaml(values: YamlDict) -> Task:
     if effort:
         values["effort"] = Effort.__members__[effort.upper()]
 
+    done = values.get("done")
+    if done:
+        values["done"] = date_from_str(done)
+
     values["dependencies"] = set(values.get("dependencies", []))
 
     return Task(**values)
@@ -33,7 +46,7 @@ def task_to_yaml(task: Task) -> YamlDict:
         category=task.category.name,
         effort=task.effort.name.lower(),
         value=task.value.name.lower(),
-        done=task.done,
+        done=date_to_str(task.done) if task.done else None,
         dependencies=list(task.dependencies),
     )
 

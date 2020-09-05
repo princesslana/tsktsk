@@ -1,6 +1,6 @@
 import contextlib
 import dataclasses
-from datetime import datetime
+from datetime import date, datetime
 from typing import Any, Dict, Iterator, Optional, Set
 
 import requests
@@ -12,6 +12,15 @@ JsonObject = Dict[str, Any]
 
 def api(path: str) -> str:
     return f"https://api.github.com{path}"
+
+
+def date_from_str(value: str) -> date:
+    return datetime.strptime(value, "%Y-%m-%dT%H:%M:%SZ").date()
+
+
+def create_issue_body(dependencies: Set[str]) -> str:
+    deps = ", ".join(f"#{dep}" for dep in sorted(dependencies, key=int))
+    return f"dependencies: {deps}"
 
 
 class GithubTask(Task):
@@ -42,12 +51,9 @@ def task_from_json(issue: JsonObject) -> GithubTask:
         if l not in (v.value for v in Value) and l not in (e.value for e in Effort)
     )
 
-    closed_at = issue["closed_at"]
-    done = (
-        datetime.strptime(closed_at, "%Y-%m-%dT%H:%M:%SZ").strftime("%Y%m%d")
-        if closed_at
-        else None
-    )
+    done = issue["closed_at"]
+    if done:
+        done = date_from_str(done)
 
     body = issue["body"] or ""
     if body:
@@ -81,11 +87,6 @@ def task_to_json(task: GithubTask) -> JsonObject:
         json["body"] = create_issue_body(task.dependencies)
 
     return json
-
-
-def create_issue_body(dependencies: Set[str]) -> str:
-    deps = ", ".join(f"#{dep}" for dep in sorted(dependencies, key=int))
-    return f"dependencies: {deps}"
 
 
 class GithubRepository:
