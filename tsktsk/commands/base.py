@@ -11,8 +11,9 @@ import smalld_click
 import tsktsk
 from dotenv import load_dotenv
 from tsktsk.config import Config, GithubAuth
+from tsktsk.dependencies import sort_tasks_by_roi
+from tsktsk.eta import sequential_eta
 from tsktsk.repository import FileRepository, GithubRepository, Repository
-from tsktsk.services import sequential_eta, sort_tasks_by_roi
 from tsktsk.task import Category, Effort, Task, TaskError, Value
 
 

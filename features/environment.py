@@ -7,7 +7,7 @@ from behave import fixture, use_fixture
 
 @fixture
 def date_fixture(context):
-    with patch("tsktsk.services.date") as date_mock, patch(
+    with patch("tsktsk.eta.date") as date_mock, patch(
         "tsktsk.task.date", new=date_mock
     ):
         yield date_mock.today
