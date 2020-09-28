@@ -1,6 +1,6 @@
 import contextlib
 import dataclasses
-from datetime import date, datetime, time
+from datetime import date, datetime, time, timezone
 from typing import Any, Dict, Iterator, List, Optional, Set
 
 import requests
@@ -14,12 +14,22 @@ def api(path: str) -> str:
     return f"https://api.github.com{path}"
 
 
+utc_tm = datetime.utcfromtimestamp(0)
+local_tm = datetime.fromtimestamp(0)
+local_tz = timezone(local_tm - utc_tm)
+
+
 def date_from_str(value: str) -> date:
-    return datetime.strptime(value, "%Y-%m-%dT%H:%M:%SZ").date()
+    return (
+        datetime.strptime(value, "%Y-%m-%dT%H:%M:%SZ")
+        .replace(tzinfo=timezone.utc)
+        .astimezone(local_tz)
+        .date()
+    )
 
 
 def date_to_str(value: date) -> str:
-    return datetime.combine(value, time()).isoformat()
+    return datetime.combine(value, time()).replace(tzinfo=local_tz).isoformat()
 
 
 def create_issue_body(dependencies: Set[str]) -> str:
