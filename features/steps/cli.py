@@ -59,6 +59,12 @@ def run(ctx, command):
     ctx.output = {"stdout": result.stdout, "stderr": result.stderr}
 
 
+@given("today is {today:ti}")
+@when("today is {today:ti}")
+def change_date(ctx, today):
+    ctx.today.return_value = today.date()
+
+
 @given("I have a git repository")
 def create_repository(ctx):
     ctx.execute_steps(

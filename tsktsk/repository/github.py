@@ -1,7 +1,7 @@
 import contextlib
 import dataclasses
-from datetime import datetime
-from typing import Any, Dict, Iterator, Optional, Set
+from datetime import date, datetime, time, timezone
+from typing import Any, Dict, Iterator, List, Optional, Set
 
 import requests
 from tsktsk.config import GithubAuth
@@ -12,6 +12,29 @@ JsonObject = Dict[str, Any]
 
 def api(path: str) -> str:
     return f"https://api.github.com{path}"
+
+
+utc_tm = datetime.utcfromtimestamp(0)
+local_tm = datetime.fromtimestamp(0)
+local_tz = timezone(local_tm - utc_tm)
+
+
+def date_from_str(value: str) -> date:
+    return (
+        datetime.strptime(value, "%Y-%m-%dT%H:%M:%SZ")
+        .replace(tzinfo=timezone.utc)
+        .astimezone(local_tz)
+        .date()
+    )
+
+
+def date_to_str(value: date) -> str:
+    return datetime.combine(value, time()).replace(tzinfo=local_tz).isoformat()
+
+
+def create_issue_body(dependencies: Set[str]) -> str:
+    deps = ", ".join(f"#{dep}" for dep in sorted(dependencies, key=int))
+    return f"dependencies: {deps}"
 
 
 class GithubTask(Task):
@@ -42,12 +65,9 @@ def task_from_json(issue: JsonObject) -> GithubTask:
         if l not in (v.value for v in Value) and l not in (e.value for e in Effort)
     )
 
-    closed_at = issue["closed_at"]
-    done = (
-        datetime.strptime(closed_at, "%Y-%m-%dT%H:%M:%SZ").strftime("%Y%m%d")
-        if closed_at
-        else None
-    )
+    done = issue["closed_at"]
+    if done:
+        done = date_from_str(done)
 
     body = issue["body"] or ""
     if body:
@@ -81,11 +101,6 @@ def task_to_json(task: GithubTask) -> JsonObject:
         json["body"] = create_issue_body(task.dependencies)
 
     return json
-
-
-def create_issue_body(dependencies: Set[str]) -> str:
-    deps = ", ".join(f"#{dep}" for dep in sorted(dependencies, key=int))
-    return f"dependencies: {deps}"
 
 
 class GithubRepository:
@@ -151,9 +166,16 @@ class GithubRepository:
         if changes:
             self.http.patch(api(f"/repos/{self.repo}/issues/{key}"), json=changes)
 
-    def issues(self, state="all") -> Iterator[JsonObject]:
-        result = self.http.get(api(f"/repos/{self.repo}/issues?state={state}")).json()
+    def issues(self, state="all", since: Optional[str] = None) -> Iterator[JsonObject]:
+        params = f"state={state}{'&since=' + since if since else ''}"
+        result = self.http.get(api(f"/repos/{self.repo}/issues?{params}")).json()
         return (issue for issue in result if not issue.get("pull_request"))
 
     def __iter__(self) -> Iterator[Task]:
         yield from (task_from_json(issue) for issue in self.issues("open"))
+
+    def tasks_done_between(self, start: date, end: date) -> List[Task]:
+        issues = self.issues("closed", since=date_to_str(start))
+        return [
+            task for task in map(task_from_json, issues) if start <= task.done <= end
+        ]

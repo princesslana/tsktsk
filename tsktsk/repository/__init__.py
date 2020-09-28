@@ -1,3 +1,4 @@
+from datetime import date
 from pathlib import Path
 from typing import Callable, ContextManager, Iterable, List, Set
 
@@ -20,6 +21,9 @@ class Repository(Iterable[Task], Protocol):
 
     # this is more complicated than we'd like because of the typing of @contextlib.contextmanager
     task: Callable[..., ContextManager[Task]]
+
+    def tasks_done_between(self, start: date, end: date) -> List[Task]:
+        ...
 
 
 def create() -> None:
