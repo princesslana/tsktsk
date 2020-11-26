@@ -2,6 +2,7 @@ import logging
 
 from smalld import SmallD
 from smalld_click import SmallDCliRunner
+
 from tsktsk.commands import root
 
 

@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Any, Dict, Iterator, List, Set
 
 import yaml
+
 from tsktsk.task import Category, Effort, Task, Value
 
 YamlDict = Dict[str, Any]

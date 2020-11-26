@@ -6,10 +6,10 @@ from pathlib import Path
 from typing import Any, Callable, Iterable, NoReturn, Optional, Set, Type, TypeVar
 
 import click
-
 import smalld_click
-import tsktsk
 from dotenv import load_dotenv
+
+import tsktsk
 from tsktsk.config import Config, GithubAuth
 from tsktsk.dependencies import sort_tasks_by_roi
 from tsktsk.eta import sequential_eta

@@ -1,6 +1,6 @@
 import dataclasses
 import os
-from typing import Dict, Iterable, Optional, Tuple
+from typing import Dict, Iterable, List, Optional
 
 
 @dataclasses.dataclass
@@ -9,8 +9,8 @@ class GithubAuth:
     token: str
 
 
-def split_tuple_list(var: str) -> Iterable[Tuple[str]]:
-    return (tuple(s.split(":")) for s in os.environ.get(var, "").split(","))
+def split_tuple_list(var: str) -> Iterable[List[str]]:
+    return (s.split(":") for s in os.environ.get(var, "").split(","))
 
 
 def dict_from_env(var: str) -> Dict[str, str]:

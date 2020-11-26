@@ -18,8 +18,8 @@ jobs:
     - name: setup pyenv
       uses: "gabrielfalcao/pyenv-action@v5"
       with:
-        default: 3.8.0
-        versions: 3.7.4
+        default: 3.9.0
+        versions: 3.7.9, 3.8.6
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -30,7 +30,7 @@ jobs:
         chmod +x ./cc-test-reporter
     - name: Test with tox
       run: |
-        pyenv local 3.7.4 3.8.0
+        pyenv local 3.7.9 3.8.6 3.9.0
         ./cc-test-reporter before-build
         tox --skip-missing-interpreters=false
         ./cc-test-reporter after-build --coverage-input-type coverage.py --exit-code $?

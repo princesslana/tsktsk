@@ -3,6 +3,7 @@ import textwrap
 
 import hypothesis
 import hypothesis.strategies as st
+
 from tsktsk.commands.base import describe_task
 from tsktsk.task import Task
 
