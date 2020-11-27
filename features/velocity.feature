@@ -4,7 +4,7 @@ Feature: Velocity
   Scenario: when no past tasks completed to estimate velocity
     Given I have run tsktsk init
       And I have run tsktsk new First Task
-     When I run tsktsk list
+     When I run tsktsk list --estimates
      Then its exit code should be 0
       And its stdout should be
         """
@@ -19,7 +19,7 @@ Feature: Velocity
       And I have run tsktsk new Second Task
       And I have run tsktsk done 1
       And today is <present_date>
-     When I run tsktsk list
+     When I run tsktsk list --estimates
      Then its exit code should be 0
       And its stdout should be
         """
@@ -40,7 +40,7 @@ Feature: Velocity
       And I have run tsktsk new Third Task
       And I have run tsktsk done 1
     Given today is 2020-09-03
-     When I run tsktsk list
+     When I run tsktsk list --estimates
      Then its exit code should be 0
       And its stdout should be
         """
@@ -72,7 +72,7 @@ Feature: Velocity
     Given today is <date3>
       And I have run tsktsk done 3
     Given today is 2020-09-20
-     When I run tsktsk list
+     When I run tsktsk list --estimates
      Then its exit code should be 0
       And its stdout should be
         """

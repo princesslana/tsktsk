@@ -123,7 +123,8 @@ Feature: Help
            List tasks to be done, with highest value:effort ratio first.
 
          Options:
-           --help  Show this message and exit.
+           --estimates / --no-estimates  Show completion date estimates.
+           --help                        Show this message and exit.
 
          """
 
