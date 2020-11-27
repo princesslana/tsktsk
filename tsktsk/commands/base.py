@@ -232,7 +232,10 @@ def edit_dependencies(task: Task, add: Set[str], remove: Set[str]):
 
 
 @root.command()
-def list() -> None:
+@click.option(
+    "--estimates/--no-estimates", default=False, help="Show completion date estimates."
+)
+def list(estimates: bool) -> None:
     "List tasks to be done, with highest value:effort ratio first."
 
     repo = tasks()
@@ -243,7 +246,7 @@ def list() -> None:
         return
 
     for task, eta in sequential_eta(repo, sorted_tasks):
-        click.echo(describe_task(task, eta))
+        click.echo(describe_task(task, eta if estimates else None))
 
 
 @root.command()
