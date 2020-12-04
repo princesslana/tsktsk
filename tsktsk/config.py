@@ -1,12 +1,7 @@
-import dataclasses
 import os
 from typing import Dict, Iterable, List, Optional
 
-
-@dataclasses.dataclass
-class GithubAuth:
-    username: str
-    token: str
+from tsktsk.auth import GithubAuth
 
 
 def split_tuple_list(var: str) -> Iterable[List[str]]:
