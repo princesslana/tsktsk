@@ -13,6 +13,8 @@ def cli():
 
 
 def bot():
+    import tsktsk.commands.bot  # noqa
+
     logging.basicConfig(level=logging.INFO)
 
     smalld = SmallD()

@@ -10,6 +10,7 @@ import smalld_click
 from dotenv import load_dotenv
 
 import tsktsk
+from tsktsk.auth import GithubAuthHandler
 from tsktsk.config import Config, GithubAuth
 from tsktsk.dependencies import sort_tasks_by_roi
 from tsktsk.eta import sequential_eta
@@ -66,11 +67,25 @@ def root(github: Optional[str]) -> None:
     if github_repository:
         tasks = GithubRepository(github_repository, find_github_auth(config))
 
-    click.get_current_context().obj = tasks
+    conversation = smalld_click.get_conversation()
+    auth_handler = (
+        GithubAuthHandler(config.github_app_client_id, "public_repo")
+        if conversation
+        else None
+    )
+
+    click.get_current_context().obj = {
+        "tasks": tasks,
+        "github_auth_handler": auth_handler,
+    }
 
 
 def tasks() -> Repository:
-    return click.get_current_context().obj
+    return click.get_current_context().obj["tasks"]
+
+
+def github_auth_handler() -> GithubAuthHandler:
+    return click.get_current_context().obj["github_auth_handler"]
 
 
 def fail(message: str) -> NoReturn:
