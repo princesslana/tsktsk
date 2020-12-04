@@ -50,3 +50,7 @@ class Config:
     @property
     def github_repositories(self) -> Dict[str, str]:
         return dict_from_env("TSKTSK_GITHUB_REPOS")
+
+    @property
+    def github_app_client_id(self) -> Optional[str]:
+        return os.environ.get("TSKTSK_GITHUB_CLIENT_ID")
