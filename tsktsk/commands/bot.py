@@ -11,7 +11,7 @@ def auth() -> None:
     context = click.get_current_context()
 
     def on_completed(auth: GithubAuth, state: GithubAuthState):
-        with context, smalld_click.get_conversation():
+        with context.scope(), smalld_click.get_conversation():
             if state == GithubAuthState.ACCEPTED:
                 click.echo("You have been registered successfully")
             elif state == GithubAuthState.DENIED:
