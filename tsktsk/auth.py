@@ -29,7 +29,7 @@ class DeviceAuthData:
     device_code: str
     user_code: str
     verification_uri: str
-    started_at: int
+    started_at: float
     expires_in: int
     interval: int
     on_completed: AuthCallback
