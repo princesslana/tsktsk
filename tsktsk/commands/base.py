@@ -1,5 +1,6 @@
 import os
 import textwrap
+import threading
 from datetime import date
 from enum import Enum
 from pathlib import Path
@@ -10,17 +11,22 @@ import smalld_click
 from dotenv import load_dotenv
 
 import tsktsk
-from tsktsk.auth import GithubAuthHandler
+from tsktsk.auth import GithubAuthDao, GithubAuthHandler
 from tsktsk.config import Config, GithubAuth
+from tsktsk.db import Database
 from tsktsk.dependencies import sort_tasks_by_roi
 from tsktsk.eta import sequential_eta
 from tsktsk.repository import FileRepository, GithubRepository, Repository
 from tsktsk.task import Category, Effort, Task, TaskError, Value
 
 
-def find_github_auth(config: Config) -> Optional[GithubAuth]:
+def find_github_auth(config: Config, dao: GithubAuthDao) -> Optional[GithubAuth]:
     conversation = smalld_click.get_conversation()
     if conversation:
+        auth = dao.find(conversation.user_id)
+        if auth:
+            return auth
+
         user = next(
             (
                 name
@@ -65,7 +71,8 @@ def root(github: Optional[str]) -> None:
 
     github_repository = find_github_repository(config)
     if github_repository:
-        tasks = GithubRepository(github_repository, find_github_auth(config))
+        auth_dao = GithubAuthDao(database())
+        tasks = GithubRepository(github_repository, find_github_auth(config, auth_dao))
 
     conversation = smalld_click.get_conversation()
     auth_handler = (
@@ -86,6 +93,23 @@ def tasks() -> Repository:
 
 def github_auth_handler() -> GithubAuthHandler:
     return click.get_current_context().obj["github_auth_handler"]
+
+
+namespace = threading.local()
+
+
+def database() -> Database:
+    db = getattr(namespace, "db", None)
+    if db:
+        return namespace.db
+    namespace.db = Database(Path(".tsktsk.db"))
+    click.get_current_context().call_on_close(close_database)
+    return namespace.db
+
+
+def close_database() -> None:
+    namespace.db.close()
+    namespace.db = None
 
 
 def fail(message: str) -> NoReturn:
