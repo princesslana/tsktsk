@@ -9,6 +9,7 @@ def install_requires():
 setup(
     name="tsktsk",
     packages=find_packages(),
+    package_data={"tsktsk.resources": ["*", "**/*"]},
     use_scm_version=True,
     install_requires=install_requires(),
     setup_requires=["setuptools-scm==3.3.3"],
