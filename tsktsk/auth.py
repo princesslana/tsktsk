@@ -116,9 +116,9 @@ class GithubAuthDao:
     def __init__(self, db: Database):
         self.db = db
 
-    def add(self, discord_id: str, auth: GithubAuth):
+    def add_or_update(self, discord_id: str, auth: GithubAuth):
         self.db.execute(
-            "INSERT INTO github_auth(discord_id, username, token) VALUES (?, ?, ?)",
+            "INSERT OR REPLACE INTO github_auth(discord_id, username, token) VALUES (?, ?, ?)",
             (discord_id, auth.username, auth.token),
         )
 

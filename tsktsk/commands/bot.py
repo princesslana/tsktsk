@@ -14,7 +14,7 @@ def auth_callback(context):
             if state == GithubAuthState.ACCEPTED:
                 with database() as db:
                     auth_dao = GithubAuthDao(db)
-                    auth_dao.add(conversation.user_id, auth)
+                    auth_dao.add_or_update(conversation.user_id, auth)
                 click.echo("You have been registered successfully")
             elif state == GithubAuthState.DENIED:
                 click.echo("Registration cancelled")
