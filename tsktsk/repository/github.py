@@ -33,9 +33,24 @@ def date_to_str(value: date) -> str:
     return datetime.combine(value, time()).replace(tzinfo=local_tz).isoformat()
 
 
+DEPENDENCIES_HEADER = "dependencies: "
+
+
 def create_issue_body(dependencies: Set[str]) -> str:
     deps = ", ".join(f"#{dep}" for dep in sorted(dependencies, key=int))
-    return f"dependencies: {deps}"
+    return f"{DEPENDENCIES_HEADER}{deps}"
+
+
+def parse_dependencies(issue_body: Optional[str]) -> Set[str]:
+    if not issue_body:
+        return set()
+
+    deps_line = issue_body.partition("\n")[0]
+    if not deps_line.startswith(DEPENDENCIES_HEADER):
+        return set()
+
+    deps = deps_line.lstrip(DEPENDENCIES_HEADER).split(", ")
+    return set(dep.lstrip("#") for dep in deps)
 
 
 class GithubTask(Task):
@@ -70,12 +85,7 @@ def task_from_json(issue: JsonObject) -> GithubTask:
     if done:
         done = date_from_str(done)
 
-    body = issue["body"] or ""
-    if body:
-        dependencies = body.partition("\n")[0].lstrip("dependencies: ").split(", ")
-        dependencies = set(dep.lstrip("#") for dep in dependencies)
-    else:
-        dependencies = set()
+    dependencies = parse_dependencies(issue["body"])
 
     return GithubTask(
         key=str(issue["number"]),
