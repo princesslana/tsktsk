@@ -1,6 +1,5 @@
 import os
 import textwrap
-import threading
 from datetime import date
 from enum import Enum
 from pathlib import Path
@@ -13,7 +12,7 @@ from dotenv import load_dotenv
 import tsktsk
 from tsktsk.auth import GithubAuthDao, GithubAuthHandler
 from tsktsk.config import Config, GithubAuth
-from tsktsk.db import Database
+from tsktsk.db import database
 from tsktsk.dependencies import sort_tasks_by_roi
 from tsktsk.eta import sequential_eta
 from tsktsk.repository import FileRepository, GithubRepository, Repository
@@ -93,23 +92,6 @@ def tasks() -> Repository:
 
 def github_auth_handler() -> GithubAuthHandler:
     return click.get_current_context().obj["github_auth_handler"]
-
-
-namespace = threading.local()
-
-
-def database() -> Database:
-    db = getattr(namespace, "db", None)
-    if db:
-        return namespace.db
-    namespace.db = Database(Path(".tsktsk.db"))
-    click.get_current_context().call_on_close(close_database)
-    return namespace.db
-
-
-def close_database() -> None:
-    namespace.db.close()
-    namespace.db = None
 
 
 def fail(message: str) -> NoReturn:

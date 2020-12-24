@@ -1,10 +1,9 @@
 import logging
 
-from pkg_resources import resource_filename
 from smalld import SmallD
 from smalld_click import SmallDCliRunner
-from yoyo import get_backend, read_migrations
 
+from tsktsk import db
 from tsktsk.commands import root
 
 
@@ -19,10 +18,7 @@ def bot():
 
     logging.basicConfig(level=logging.INFO)
 
-    backend = get_backend("sqlite:///.tsktsk.db")
-    migrations = read_migrations(resource_filename("tsktsk.resources", "migrations"))
-    with backend.lock():
-        backend.apply_migrations(backend.to_apply(migrations))
+    db.apply_migrations()
 
     smalld = SmallD()
 

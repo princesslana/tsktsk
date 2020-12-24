@@ -4,15 +4,15 @@ import click
 import smalld_click
 
 from tsktsk.auth import GithubAuth, GithubAuthDao, GithubAuthState
-from tsktsk.commands.base import database, github_auth_handler, root
+from tsktsk.commands.base import github_auth_handler, root
+from tsktsk.db import database
 
 
 def auth_callback(context):
     def on_complete(auth: Optional[GithubAuth], state: GithubAuthState) -> None:
         with context.scope(), smalld_click.get_conversation() as conversation:
             if state == GithubAuthState.ACCEPTED:
-                db = database()
-                with db.transaction():
+                with database() as db:
                     auth_dao = GithubAuthDao(db)
                     auth_dao.add(conversation.user_id, auth)
                 click.echo("You have been registered successfully")
