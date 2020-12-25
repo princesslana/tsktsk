@@ -89,7 +89,7 @@ def task_from_json(issue: JsonObject) -> GithubTask:
 
     return GithubTask(
         key=str(issue["number"]),
-        message=message,
+        message=message.strip(),
         category=category,
         effort=effort,
         value=value,
