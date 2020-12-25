@@ -8,10 +8,6 @@ from tsktsk.commands.base import describe_task
 from tsktsk.task import Task
 
 
-def printable():
-    return st.text(alphabet=string.printable, min_size=1)
-
-
 @st.composite
 def task(draw):
     key = draw(

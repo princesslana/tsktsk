@@ -63,11 +63,13 @@ class GithubTask(Task):
 def task_from_json(issue: JsonObject) -> GithubTask:
     title = issue["title"]
 
+    category = None
+
     if ":" in title:
         prefix, message = title.split(":", maxsplit=1)
+        category = next((c for c in Category if c.name in prefix), None)
 
-        category = next((c for c in Category if c.name in prefix), Category.DEFAULT)
-    else:
+    if not category:
         category = Category.DEFAULT
         message = title
 
@@ -89,7 +91,7 @@ def task_from_json(issue: JsonObject) -> GithubTask:
 
     return GithubTask(
         key=str(issue["number"]),
-        message=message,
+        message=message.strip(),
         category=category,
         effort=effort,
         value=value,
