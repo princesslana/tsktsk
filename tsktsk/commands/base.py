@@ -7,7 +7,6 @@ from typing import Any, Callable, Iterable, NoReturn, Optional, Set, Type, TypeV
 
 import click
 import smalld_click
-from dotenv import load_dotenv
 
 import tsktsk
 from tsktsk.auth import GithubAuthDao, GithubAuthHandler
@@ -59,8 +58,6 @@ def find_github_repository(config: Config) -> Optional[str]:
 @click.version_option(version=tsktsk.__version__, message="%(version)s")
 @click.option("--github", default=None, help="Manage issues in a github repository.")
 def root(github: Optional[str]) -> None:
-    load_dotenv(Path(".env"))
-
     if github:
         os.environ["TSKTSK_GITHUB_REPO"] = github
 

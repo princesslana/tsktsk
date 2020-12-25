@@ -1,6 +1,6 @@
+import os
 import sqlite3
 import threading
-from pathlib import Path
 from typing import Any, Iterable
 
 from pkg_resources import resource_filename
@@ -33,12 +33,14 @@ def database() -> Database:
     db = getattr(namespace, "db", None)
     if db:
         return namespace.db
-    namespace.db = Database(Path(".tsktsk.db"))
+    path = os.environ.get("TSKTSK_DB_PATH")
+    namespace.db = Database(path)
     return namespace.db
 
 
 def apply_migrations():
-    backend = get_backend("sqlite:///.tsktsk.db")
+    path = os.environ.get("TSKTSK_DB_PATH")
+    backend = get_backend(f"sqlite:///{path}")
     migrations = read_migrations(resource_filename("tsktsk.resources", "migrations"))
     with backend.lock():
         backend.apply_migrations(backend.to_apply(migrations))
