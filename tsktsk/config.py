@@ -1,12 +1,7 @@
-import dataclasses
 import os
 from typing import Dict, Iterable, List, Optional
 
-
-@dataclasses.dataclass
-class GithubAuth:
-    username: str
-    token: str
+from tsktsk.auth import GithubAuth
 
 
 def split_tuple_list(var: str) -> Iterable[List[str]]:
@@ -55,3 +50,7 @@ class Config:
     @property
     def github_repositories(self) -> Dict[str, str]:
         return dict_from_env("TSKTSK_GITHUB_REPOS")
+
+    @property
+    def github_app_client_id(self) -> Optional[str]:
+        return os.environ.get("TSKTSK_GITHUB_CLIENT_ID")

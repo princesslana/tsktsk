@@ -7,19 +7,24 @@ from typing import Any, Callable, Iterable, NoReturn, Optional, Set, Type, TypeV
 
 import click
 import smalld_click
-from dotenv import load_dotenv
 
 import tsktsk
+from tsktsk.auth import GithubAuthDao, GithubAuthHandler
 from tsktsk.config import Config, GithubAuth
+from tsktsk.db import database
 from tsktsk.dependencies import sort_tasks_by_roi
 from tsktsk.eta import sequential_eta
 from tsktsk.repository import FileRepository, GithubRepository, Repository
 from tsktsk.task import Category, Effort, Task, TaskError, Value
 
 
-def find_github_auth(config: Config) -> Optional[GithubAuth]:
+def find_github_auth(config: Config, dao: GithubAuthDao) -> Optional[GithubAuth]:
     conversation = smalld_click.get_conversation()
     if conversation:
+        auth = dao.find(conversation.user_id)
+        if auth:
+            return auth
+
         user = next(
             (
                 name
@@ -53,8 +58,6 @@ def find_github_repository(config: Config) -> Optional[str]:
 @click.version_option(version=tsktsk.__version__, message="%(version)s")
 @click.option("--github", default=None, help="Manage issues in a github repository.")
 def root(github: Optional[str]) -> None:
-    load_dotenv(Path(".env"))
-
     if github:
         os.environ["TSKTSK_GITHUB_REPO"] = github
 
@@ -64,13 +67,28 @@ def root(github: Optional[str]) -> None:
 
     github_repository = find_github_repository(config)
     if github_repository:
-        tasks = GithubRepository(github_repository, find_github_auth(config))
+        auth_dao = GithubAuthDao(database())
+        tasks = GithubRepository(github_repository, find_github_auth(config, auth_dao))
 
-    click.get_current_context().obj = tasks
+    conversation = smalld_click.get_conversation()
+    auth_handler = (
+        GithubAuthHandler(config.github_app_client_id, "public_repo")
+        if conversation
+        else None
+    )
+
+    click.get_current_context().obj = {
+        "tasks": tasks,
+        "github_auth_handler": auth_handler,
+    }
 
 
 def tasks() -> Repository:
-    return click.get_current_context().obj
+    return click.get_current_context().obj["tasks"]
+
+
+def github_auth_handler() -> GithubAuthHandler:
+    return click.get_current_context().obj["github_auth_handler"]
 
 
 def fail(message: str) -> NoReturn:

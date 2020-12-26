@@ -1,9 +1,14 @@
 import logging
+from pathlib import Path
 
+from dotenv import load_dotenv
 from smalld import SmallD
 from smalld_click import SmallDCliRunner
 
+from tsktsk import db
 from tsktsk.commands import root
+
+load_dotenv(Path(".env"))
 
 
 def cli():
@@ -13,7 +18,11 @@ def cli():
 
 
 def bot():
+    import tsktsk.commands.bot  # noqa
+
     logging.basicConfig(level=logging.INFO)
+
+    db.apply_migrations()
 
     smalld = SmallD()
 
