@@ -1,4 +1,5 @@
 import logging
+import os
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -9,6 +10,8 @@ from tsktsk import db
 from tsktsk.commands import root
 
 load_dotenv(Path(".env"))
+
+NAME = os.environ.get("TSKTSK_NAME", "tsktsk")
 
 
 def cli():
@@ -28,5 +31,7 @@ def bot():
 
     create_message = lambda msg: {"content": f"```\n{msg}\n```"}
 
-    with SmallDCliRunner(smalld, root, create_message=create_message):
+    with SmallDCliRunner(
+        smalld, root, prefix="", name=NAME, create_message=create_message
+    ):
         smalld.run()
