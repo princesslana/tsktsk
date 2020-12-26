@@ -8,4 +8,7 @@ WORKDIR /var/src/
 COPY . .
 RUN pip install .
 
+RUN mkdir /var/data
+ENV TSKTSK_DB_PATH /var/data/tsktsk.sqlite
+
 CMD tsktsk-bot
