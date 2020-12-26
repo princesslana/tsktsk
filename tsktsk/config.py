@@ -34,18 +34,8 @@ class Config:
         return GithubAuth(username, token)
 
     @property
-    def discord_users(self) -> Dict[str, str]:
-        return dict_from_env("TSKTSK_DISCORD_USERS")
-
-    @property
     def discord_channels(self) -> Dict[str, str]:
         return dict_from_env("TSKTSK_DISCORD_CHANNELS")
-
-    @property
-    def github_users(self) -> Dict[str, GithubAuth]:
-        return {
-            u[0]: GithubAuth(*u[1:]) for u in split_tuple_list("TSKTSK_GITHUB_USERS")
-        }
 
     @property
     def github_repositories(self) -> Dict[str, str]:

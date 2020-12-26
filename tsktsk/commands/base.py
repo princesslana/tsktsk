@@ -20,22 +20,7 @@ from tsktsk.task import Category, Effort, Task, TaskError, Value
 
 def find_github_auth(config: Config, dao: GithubAuthDao) -> Optional[GithubAuth]:
     conversation = smalld_click.get_conversation()
-    if conversation:
-        auth = dao.find(conversation.user_id)
-        if auth:
-            return auth
-
-        user = next(
-            (
-                name
-                for name, user_id in config.discord_users.items()
-                if user_id == conversation.user_id
-            ),
-            None,
-        )
-        return config.github_users.get(user)
-    else:
-        return config.single_github_auth
+    return dao.find(conversation.user_id) if conversation else config.single_github_auth
 
 
 def find_github_repository(config: Config) -> Optional[str]:
