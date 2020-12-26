@@ -6,9 +6,11 @@ from typing import Any, Iterable
 from pkg_resources import resource_filename
 from yoyo import get_backend, read_migrations
 
+PATH = os.environ.get("TSKTSK_DB_PATH", "data/tsktsk.sqlite")
+
 
 class Database:
-    def __init__(self, db_path):
+    def __init__(self, db_path=PATH):
         self.connection = sqlite3.connect(db_path)
         self.connection.row_factory = sqlite3.Row
 
@@ -33,14 +35,12 @@ def database() -> Database:
     db = getattr(namespace, "db", None)
     if db:
         return namespace.db
-    path = os.environ.get("TSKTSK_DB_PATH")
-    namespace.db = Database(path)
+    namespace.db = Database()
     return namespace.db
 
 
 def apply_migrations():
-    path = os.environ.get("TSKTSK_DB_PATH")
-    backend = get_backend(f"sqlite:///{path}")
+    backend = get_backend(f"sqlite:///{PATH}")
     migrations = read_migrations(resource_filename("tsktsk.resources", "migrations"))
     with backend.lock():
         backend.apply_migrations(backend.to_apply(migrations))
