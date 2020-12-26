@@ -9,5 +9,6 @@
 __pycache__
 build
 coverage.xml
+data
 dist
 tags*
