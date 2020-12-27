@@ -3,8 +3,9 @@ from typing import Optional
 import click
 import smalld_click
 
-from tsktsk.auth import GithubAuth, GithubAuthDao, GithubAuthState
-from tsktsk.commands.base import github_auth_handler, root
+from tsktsk.auth import GithubAuth, GithubAuthDao, GithubAuthHandler, GithubAuthState
+from tsktsk.commands.base import root
+from tsktsk.config import Env
 from tsktsk.db import database
 
 
@@ -29,7 +30,7 @@ def auth_callback(context):
 
 @root.command()
 def auth() -> None:
-    auth_handler = github_auth_handler()
+    auth_handler = GithubAuthHandler(Env.GITHUB_APP_CLIENT_ID.get(), "public_repo")
     context = click.get_current_context()
 
     smalld_click.get_conversation().ensure_safe()
