@@ -9,18 +9,13 @@ import click
 import smalld_click
 
 import tsktsk
-from tsktsk.auth import GithubAuthDao, GithubAuthHandler
-from tsktsk.config import Config, GithubAuth
+from tsktsk.auth import GithubAuthDao, GithubAuthHandler, find_github_auth
+from tsktsk.config import Config
 from tsktsk.db import database
 from tsktsk.dependencies import sort_tasks_by_roi
 from tsktsk.eta import sequential_eta
 from tsktsk.repository import FileRepository, GithubRepository, Repository
 from tsktsk.task import Category, Effort, Task, TaskError, Value
-
-
-def find_github_auth(config: Config, dao: GithubAuthDao) -> Optional[GithubAuth]:
-    conversation = smalld_click.get_conversation()
-    return dao.find(conversation.user_id) if conversation else config.single_github_auth
 
 
 def find_github_repository(config: Config) -> Optional[str]:
@@ -53,7 +48,7 @@ def root(github: Optional[str]) -> None:
     github_repository = find_github_repository(config)
     if github_repository:
         auth_dao = GithubAuthDao(database())
-        tasks = GithubRepository(github_repository, find_github_auth(config, auth_dao))
+        tasks = GithubRepository(github_repository, find_github_auth(auth_dao))
 
     conversation = smalld_click.get_conversation()
     auth_handler = (

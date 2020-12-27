@@ -6,6 +6,9 @@ from threading import Event, Thread
 from typing import Callable, Optional
 
 import requests
+import smalld_click
+
+from tsktsk.config import Env
 
 from .db import Database
 
@@ -14,6 +17,22 @@ from .db import Database
 class GithubAuth:
     username: str
     token: str
+
+
+def auth_from_env() -> Optional[GithubAuth]:
+    username = Env.GITHUB_USERNAME.get()
+    token = Env.GITHUB_TOKEN.get()
+
+    if username and not token:
+        raise ValueError("Github username provided, but no token")
+
+    if token and not username:
+        raise ValueError("Github token provided, but no username")
+
+    if not username and not token:
+        return None
+
+    return GithubAuth(username, token)
 
 
 class GithubAuthState(Enum):
@@ -128,3 +147,8 @@ class GithubAuthDao:
             (discord_id,),
         )
         return GithubAuth(row[0], row[1]) if row is not None else None
+
+
+def find_github_auth(dao: GithubAuthDao) -> Optional[GithubAuth]:
+    conversation = smalld_click.get_conversation()
+    return dao.find(conversation.user_id) if conversation else auth_from_env()
