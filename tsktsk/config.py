@@ -6,6 +6,7 @@ from typing import Dict, Iterable, List, Optional
 class Env(Enum):
     GITHUB_USERNAME = "TSKTSK_GITHUB_USERNAME"
     GITHUB_TOKEN = "TSKTSK_GITHUB_TOKEN"
+    GITHUB_APP_CLIENT_ID = "TSKTSK_GITHUB_CLIENT_ID"
 
     def get(self, default: Optional[str] = None) -> Optional[str]:
         return os.environ.get(self.value, default)
@@ -31,7 +32,3 @@ class Config:
     @property
     def github_repositories(self) -> Dict[str, str]:
         return dict_from_env("TSKTSK_GITHUB_REPOS")
-
-    @property
-    def github_app_client_id(self) -> Optional[str]:
-        return os.environ.get("TSKTSK_GITHUB_CLIENT_ID")
