@@ -1,7 +1,14 @@
 import os
+from enum import Enum
 from typing import Dict, Iterable, List, Optional
 
-from tsktsk.auth import GithubAuth
+
+class Env(Enum):
+    GITHUB_USERNAME = "TSKTSK_GITHUB_USERNAME"
+    GITHUB_TOKEN = "TSKTSK_GITHUB_TOKEN"
+
+    def get(self, default: Optional[str] = None) -> Optional[str]:
+        return os.environ.get(self.value, default)
 
 
 def split_tuple_list(var: str) -> Iterable[List[str]]:
@@ -16,22 +23,6 @@ class Config:
     @property
     def single_github_repository(self) -> Optional[str]:
         return os.environ.get("TSKTSK_GITHUB_REPO")
-
-    @property
-    def single_github_auth(self) -> Optional[GithubAuth]:
-        username = os.environ.get("TSKTSK_GITHUB_USERNAME")
-        token = os.environ.get("TSKTSK_GITHUB_TOKEN")
-
-        if username and not token:
-            raise ValueError("Github username provided, but no token")
-
-        if token and not username:
-            raise ValueError("Github token provided, but no username")
-
-        if not username and not token:
-            return None
-
-        return GithubAuth(username, token)
 
     @property
     def discord_channels(self) -> Dict[str, str]:
