@@ -7,6 +7,7 @@ class Env(Enum):
     GITHUB_USERNAME = "TSKTSK_GITHUB_USERNAME"
     GITHUB_TOKEN = "TSKTSK_GITHUB_TOKEN"
     GITHUB_APP_CLIENT_ID = "TSKTSK_GITHUB_CLIENT_ID"
+    GITHUB_SINGLE_REPO = "TSKTSK_GITHUB_REPO"
 
     def get(self, default: Optional[str] = None) -> Optional[str]:
         return os.environ.get(self.value, default)
@@ -21,10 +22,6 @@ def dict_from_env(var: str) -> Dict[str, str]:
 
 
 class Config:
-    @property
-    def single_github_repository(self) -> Optional[str]:
-        return os.environ.get("TSKTSK_GITHUB_REPO")
-
     @property
     def discord_channels(self) -> Dict[str, str]:
         return dict_from_env("TSKTSK_DISCORD_CHANNELS")
