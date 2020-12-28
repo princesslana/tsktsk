@@ -6,8 +6,8 @@ from dotenv import load_dotenv
 from smalld import SmallD
 from smalld_click import SmallDCliRunner
 
-from tsktsk import db
 from tsktsk.commands import root
+from tsktsk.db import apply_migrations
 
 if not os.environ.get("TSKTSK_IGNORE_DOTENV"):
     load_dotenv(Path(".env"))
@@ -26,7 +26,7 @@ def bot():
 
     name = os.environ.get("TSKTSK_NAME", "tsktsk")
 
-    db.apply_migrations()
+    apply_migrations()
 
     smalld = SmallD()
 

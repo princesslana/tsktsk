@@ -4,9 +4,8 @@ from typing import Optional
 import smalld_click
 
 from tsktsk.config import Config, Env
-from tsktsk.db import database
 from tsktsk.repository import FileRepository, GithubRepository, Repository
-from tsktsk.repository.auth import GithubAuthDao, find_github_auth
+from tsktsk.repository.auth import find_github_auth
 
 
 def discover_repository(config: Config, explicit_github: Optional[str]) -> Repository:
@@ -31,8 +30,7 @@ def discover_repository(config: Config, explicit_github: Optional[str]) -> Repos
         github_repository = Env.GITHUB_SINGLE_REPO.get()
 
     if github_repository:
-        auth_dao = GithubAuthDao(database())
-        return GithubRepository(github_repository, find_github_auth(auth_dao))
+        return GithubRepository(github_repository, find_github_auth())
     else:
         return FileRepository(Path(".tsktsk"))
 

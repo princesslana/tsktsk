@@ -10,10 +10,6 @@ from tsktsk.repository import FileRepository, GithubRepository
 from tsktsk.repository.discovery import discover_repository
 
 
-def no_db():
-    return patch("tsktsk.repository.discovery.database", return_value=None)
-
-
 def no_conversation():
     return patch("smalld_click.get_conversation", return_value=None)
 
@@ -28,7 +24,7 @@ def github_repo(draw):
 
 
 def test_defaults_to_file_repository():
-    with no_db(), no_conversation():
+    with no_conversation():
         r = discover_repository(None, None)
 
         assert isinstance(r, FileRepository)
@@ -37,7 +33,7 @@ def test_defaults_to_file_repository():
 
 @hypothesis.given(github_repo=github_repo())
 def test_always_uses_explicit(github_repo):
-    with no_db(), no_conversation():
+    with no_conversation():
         r = discover_repository(None, github_repo)
 
         assert isinstance(r, GithubRepository)
@@ -46,7 +42,7 @@ def test_always_uses_explicit(github_repo):
 
 @hypothesis.given(github_repo=github_repo())
 def test_uses_repo_configured_with_envvar(github_repo):
-    with MonkeyPatch().context() as mp, no_db(), no_conversation():
+    with MonkeyPatch().context() as mp, no_conversation():
         mp.setenv("TSKTSK_GITHUB_REPO", github_repo)
 
         r = discover_repository(None, None)
