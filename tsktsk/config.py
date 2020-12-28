@@ -8,6 +8,7 @@ class Env(Enum):
     GITHUB_TOKEN = "TSKTSK_GITHUB_TOKEN"
     GITHUB_APP_CLIENT_ID = "TSKTSK_GITHUB_CLIENT_ID"
     GITHUB_SINGLE_REPO = "TSKTSK_GITHUB_REPO"
+    DB_PATH = "TSKTSK_DB_PATH"
 
     def get(self, default: Optional[str] = None) -> Optional[str]:
         return os.environ.get(self.value, default)
