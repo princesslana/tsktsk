@@ -9,8 +9,7 @@ import requests
 import smalld_click
 
 from tsktsk.config import Env
-
-from .db import Database
+from tsktsk.db import Database
 
 
 @dataclasses.dataclass

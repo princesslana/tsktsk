@@ -3,10 +3,15 @@ from typing import Optional
 import click
 import smalld_click
 
-from tsktsk.auth import GithubAuth, GithubAuthDao, GithubAuthHandler, GithubAuthState
 from tsktsk.commands.base import root
 from tsktsk.config import Env
 from tsktsk.db import database
+from tsktsk.repository.auth import (
+    GithubAuth,
+    GithubAuthDao,
+    GithubAuthHandler,
+    GithubAuthState,
+)
 
 
 def auth_callback(context):

@@ -5,7 +5,7 @@ from typing import Any, Dict, Iterator, List, Optional, Set
 
 import requests
 
-from tsktsk.auth import GithubAuth
+from tsktsk.repository.auth import GithubAuth
 from tsktsk.task import Category, Effort, Task, Value
 
 JsonObject = Dict[str, Any]

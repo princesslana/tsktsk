@@ -1,54 +1,26 @@
-import os
 import textwrap
 from datetime import date
 from enum import Enum
-from pathlib import Path
 from typing import Any, Callable, Iterable, NoReturn, Optional, Set, Type, TypeVar
 
 import click
-import smalld_click
 
 import tsktsk
-from tsktsk.auth import GithubAuthDao, find_github_auth
 from tsktsk.config import Config
-from tsktsk.db import database
 from tsktsk.dependencies import sort_tasks_by_roi
 from tsktsk.eta import sequential_eta
-from tsktsk.repository import FileRepository, GithubRepository, Repository
+from tsktsk.repository import Repository
+from tsktsk.repository.discovery import discover_repository
 from tsktsk.task import Category, Effort, Task, TaskError, Value
-
-
-def find_github_repository(config: Config) -> Optional[str]:
-    conversation = smalld_click.get_conversation()
-    if conversation:
-        channel = next(
-            (
-                name
-                for name, channel_id in config.discord_channels.items()
-                if channel_id == conversation.channel_id
-            ),
-            None,
-        )
-        return config.github_repositories.get(channel, config.single_github_repository)
-    else:
-        return config.single_github_repository
 
 
 @click.group("tsktsk")
 @click.version_option(version=tsktsk.__version__, message="%(version)s")
 @click.option("--github", default=None, help="Manage issues in a github repository.")
 def root(github: Optional[str]) -> None:
-    if github:
-        os.environ["TSKTSK_GITHUB_REPO"] = github
-
     config = Config()
 
-    tasks = FileRepository(Path(".tsktsk"))
-
-    github_repository = find_github_repository(config)
-    if github_repository:
-        auth_dao = GithubAuthDao(database())
-        tasks = GithubRepository(github_repository, find_github_auth(auth_dao))
+    tasks = discover_repository(config, github)
 
     click.get_current_context().obj = {
         "tasks": tasks,
