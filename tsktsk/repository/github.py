@@ -173,7 +173,9 @@ class GithubRepository:
         after = task_to_json(task)
 
         changes = {
-            k: after[k] for k, _ in after.items() if before.get(k, None) != after[k]
+            k: after[k]
+            for k in before.keys() | after.keys()
+            if before.get(k, None) != after.get(k, None)
         }
 
         if changes:
