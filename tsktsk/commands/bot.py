@@ -13,6 +13,8 @@ from tsktsk.repository.auth import (
     GithubAuthState,
 )
 
+AUTH_HANDLER = GithubAuthHandler(Env.GITHUB_APP_CLIENT_ID.get(), "public_repo")
+
 
 def auth_callback(context):
     def on_complete(auth: Optional[GithubAuth], state: GithubAuthState) -> None:
@@ -35,11 +37,10 @@ def auth_callback(context):
 
 @root.command()
 def auth() -> None:
-    auth_handler = GithubAuthHandler(Env.GITHUB_APP_CLIENT_ID.get(), "public_repo")
     context = click.get_current_context()
 
     smalld_click.get_conversation().ensure_safe()
-    auth_data = auth_handler.authenticate(auth_callback(context))
+    auth_data = AUTH_HANDLER.authenticate(auth_callback(context))
     click.echo(
         f"Your verification code is {auth_data.user_code} valid for"
         f" {auth_data.expires_in // 60} minutes. Visit {auth_data.verification_uri}"
