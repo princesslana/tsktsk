@@ -33,31 +33,22 @@ def date_to_str(value: date) -> str:
     return datetime.combine(value, time()).replace(tzinfo=local_tz).isoformat()
 
 
-DEPENDENCIES_HEADER = "dependencies: "
-
-
-def create_issue_body(dependencies: Set[str]) -> str:
-    deps = ", ".join(f"#{dep}" for dep in sorted(dependencies, key=int))
-    return f"{DEPENDENCIES_HEADER}{deps}"
-
-
-def parse_dependencies(issue_body: Optional[str]) -> Set[str]:
-    if not issue_body:
-        return set()
-
-    deps_line = issue_body.partition("\n")[0]
-    if not deps_line.startswith(DEPENDENCIES_HEADER):
-        return set()
-
-    deps = deps_line.lstrip(DEPENDENCIES_HEADER).split(", ")
-    return set(dep.lstrip("#") for dep in deps)
-
-
 class GithubTask(Task):
     def __init__(self, **kwargs: Any):
         self.additional_labels = kwargs.pop("additional_labels", None)
+        self.additional_body = kwargs.pop("additional_body", "")
 
         super().__init__(**kwargs)
+
+
+DEPENDENCIES_HEADER = "dependencies: "
+
+
+def create_issue_body(dependencies: Set[str], additional_body: str = "") -> str:
+    if not dependencies:
+        return additional_body
+    deps = ", ".join(f"#{dep}" for dep in sorted(dependencies, key=int))
+    return f"{DEPENDENCIES_HEADER}{deps}\n{additional_body}".strip()
 
 
 def task_from_json(issue: JsonObject) -> GithubTask:
@@ -87,7 +78,14 @@ def task_from_json(issue: JsonObject) -> GithubTask:
     if done:
         done = date_from_str(done)
 
-    dependencies = parse_dependencies(issue["body"])
+    body = issue["body"] or ""
+    if body.startswith(DEPENDENCIES_HEADER):
+        deps, _, body = body.partition("\n")
+        dependencies = set(
+            dep.lstrip("#") for dep in deps.lstrip(DEPENDENCIES_HEADER).split(", ")
+        )
+    else:
+        dependencies = set()
 
     return GithubTask(
         key=str(issue["number"]),
@@ -97,6 +95,7 @@ def task_from_json(issue: JsonObject) -> GithubTask:
         value=value,
         additional_labels=additional_labels,
         dependencies=dependencies,
+        additional_body=body,
         done=done,
     )
 
@@ -110,8 +109,7 @@ def task_to_json(task: GithubTask) -> JsonObject:
     labels = [l.value for l in (task.value, task.effort) if l.value]
     json["labels"] = sorted(labels + (task.additional_labels or []))
 
-    if task.dependencies:
-        json["body"] = create_issue_body(task.dependencies)
+    json["body"] = create_issue_body(task.dependencies, task.additional_body)
 
     return json
 
