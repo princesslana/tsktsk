@@ -9,9 +9,8 @@ from smalld_click import SmallDCliRunner
 from tsktsk import db
 from tsktsk.commands import root
 
-load_dotenv(Path(".env"))
-
-NAME = os.environ.get("TSKTSK_NAME", "tsktsk")
+if not os.environ.get("TSKTSK_IGNORE_DOTENV"):
+    load_dotenv(Path(".env"))
 
 
 def cli():
@@ -25,6 +24,8 @@ def bot():
 
     logging.basicConfig(level=logging.INFO)
 
+    name = os.environ.get("TSKTSK_NAME", "tsktsk")
+
     db.apply_migrations()
 
     smalld = SmallD()
@@ -32,6 +33,6 @@ def bot():
     create_message = lambda msg: {"content": f"```\n{msg}\n```"}
 
     with SmallDCliRunner(
-        smalld, root, prefix="", name=NAME, create_message=create_message
+        smalld, root, prefix="", name=name, create_message=create_message
     ):
         smalld.run()

@@ -9,6 +9,8 @@ import tempfile
 from contextlib import contextmanager, redirect_stderr, redirect_stdout
 from pathlib import Path
 
+# Set before import to avoid local .env interfering with tests
+os.environ["TSKTSK_IGNORE_DOTENV"] = "true"
 from tsktsk.__main__ import cli
 
 
