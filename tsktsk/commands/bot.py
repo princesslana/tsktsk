@@ -40,3 +40,17 @@ def auth() -> None:
         f" {auth_data.expires_in // 60} minutes. Visit {auth_data.verification_uri}"
         f" to complete the authentication process."
     )
+
+
+@root.command()
+def revoke() -> None:
+    """
+    Revoke Github authentication token.
+
+    Example:
+      tsktsk revoke
+    """
+    conversation = smalld_click.get_conversation()
+    conversation.ensure_safe()
+    auth_dao.delete(conversation.user_id)
+    click.echo("Your Github authentication token has been revoked")
