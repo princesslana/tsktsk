@@ -10,7 +10,7 @@ class GithubAuth:
     token: str
 
 
-def add_or_update(discord_id: str, auth: GithubAuth):
+def add_or_update(discord_id: str, auth: GithubAuth) -> None:
     with connection() as conn:
         conn.execute(
             "INSERT OR REPLACE INTO github_auth(discord_id, username, token) VALUES (?, ?, ?)",
@@ -25,3 +25,8 @@ def find(discord_id: str) -> Optional[GithubAuth]:
             (discord_id,),
         ).fetchone()
         return GithubAuth(row[0], row[1]) if row is not None else None
+
+
+def delete(discord_id: str) -> None:
+    with connection() as conn:
+        conn.execute("DELETE FROM github_auth WHERE discord_id = ?", (discord_id,))
