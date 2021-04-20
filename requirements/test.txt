@@ -4,21 +4,42 @@
 #
 #    pip-compile --output-file=requirements/test.txt requirements/test.in
 #
-atomicwrites==1.4.0       # via pytest
-attrs==19.3.0             # via hypothesis, pytest
-behave==1.2.6             # via -r requirements/test.in
-coverage==5.1             # via -r requirements/test.in
-hypothesis==5.21.0        # via -r requirements/test.in
-importlib-metadata==1.7.0  # via pluggy, pytest
-more-itertools==8.4.0     # via pytest
-packaging==20.4           # via pytest
-parse-type==0.5.2         # via behave
-parse==1.15.0             # via behave, parse-type
-pluggy==0.13.1            # via pytest
-py==1.9.0                 # via pytest
-pyparsing==2.4.7          # via packaging
-pytest==5.2.1             # via -r requirements/test.in
-six==1.15.0               # via behave, packaging, parse-type
-sortedcontainers==2.2.2   # via hypothesis
-wcwidth==0.2.5            # via pytest
-zipp==3.1.0               # via importlib-metadata
+atomicwrites==1.4.0
+    # via pytest
+attrs==19.3.0
+    # via
+    #   hypothesis
+    #   pytest
+behave==1.2.6
+    # via -r test.in
+coverage==5.1
+    # via -r test.in
+hypothesis==5.21.0
+    # via -r test.in
+more-itertools==8.4.0
+    # via pytest
+packaging==20.4
+    # via pytest
+parse-type==0.5.2
+    # via behave
+parse==1.15.0
+    # via
+    #   behave
+    #   parse-type
+pluggy==0.13.1
+    # via pytest
+py==1.10.0
+    # via pytest
+pyparsing==2.4.7
+    # via packaging
+pytest==5.2.1
+    # via -r test.in
+six==1.15.0
+    # via
+    #   behave
+    #   packaging
+    #   parse-type
+sortedcontainers==2.2.2
+    # via hypothesis
+wcwidth==0.2.5
+    # via pytest
