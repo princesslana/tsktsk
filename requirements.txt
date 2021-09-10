@@ -4,19 +4,41 @@
 #
 #    pip-compile --output-file=requirements.txt requirements.in
 #
-certifi==2020.6.20        # via requests
-chardet==3.0.4            # via requests
-click==7.1.2              # via -r requirements.in, smalld-click
-idna==2.10                # via requests
-python-dotenv==0.14.0     # via -r requirements.in
-pyyaml==5.3.1             # via -r requirements.in
-requests==2.24.0          # via -r requirements.in, smalld
-six==1.15.0               # via websocket-client
-smalld-click==0.2.2       # via -r requirements.in
-smalld==0.1.7             # via -r requirements.in, smalld-click
-sqlparse==0.4.1           # via yoyo-migrations
-tabulate==0.8.7           # via yoyo-migrations
-typing-extensions==3.7.4.2  # via -r requirements.in
-urllib3==1.25.9           # via requests
-websocket-client==0.57.0  # via smalld
-yoyo-migrations==7.2.1    # via -r requirements.in
+certifi==2020.6.20
+    # via requests
+chardet==3.0.4
+    # via requests
+click==7.1.2
+    # via
+    #   -r requirements.in
+    #   smalld-click
+idna==2.10
+    # via requests
+python-dotenv==0.14.0
+    # via -r requirements.in
+pyyaml==5.3.1
+    # via -r requirements.in
+requests==2.24.0
+    # via
+    #   -r requirements.in
+    #   smalld
+six==1.15.0
+    # via websocket-client
+smalld==0.1.7
+    # via
+    #   -r requirements.in
+    #   smalld-click
+smalld-click==0.2.2
+    # via -r requirements.in
+sqlparse==0.4.2
+    # via yoyo-migrations
+tabulate==0.8.7
+    # via yoyo-migrations
+typing-extensions==3.7.4.2
+    # via -r requirements.in
+urllib3==1.25.9
+    # via requests
+websocket-client==0.57.0
+    # via smalld
+yoyo-migrations==7.2.1
+    # via -r requirements.in
